@@ -1,17 +1,5 @@
 import streamlit as st
 from PIL import Image
-from PIL import ImageGrab  
-from PIL import ImageOps
-import random
-import os
-import numpy as np 
-from imutils.perspective import four_point_transform
-import imutils
-import pickle
-global SO_DAU_HOI_IN_DA, dic_dap_an, ch_dap_an
-SO_DAU_HOI_IN_DA = 0
-dic_dap_an = {}
-ch_dap_an=''
 
 def Xem_txtmark_hdan(selected):
     st.subheader(":blue["+selected+"]")
@@ -29,14 +17,3 @@ def Xem_txtmark_hdan(selected):
     **:green[Rồi tiếp tục với từng PTN khác...]**  
     '''
     st.markdown(txtmark)
-
-
-
-def Cham_ptn_qua_camera(selected):
-    st.subheader(":red["+selected+"]")
-    img_file_buffer = st.camera_input("Take a picture")
-
-    if img_file_buffer is not None:
-        # To read image file buffer with OpenCV:
-        bytes_data = img_file_buffer.getvalue()
-

@@ -18,10 +18,13 @@ with st.sidebar:
                                          "3. Chấm qua Camera màn hình", "4. Hướng dẫn","5. About" ], default_index=0)
 
 if '3.' in selected:
-    Cham_ptn_qua_camera(selected)
+    st.subheader(":red["+selected+"]")
+    img_file_buffer = st.camera_input("Take a picture")
 
-elif '4.' in selected:
-    Xem_txtmark_hdan(selected)
+    if img_file_buffer is not None:
+        # To read image file buffer with OpenCV:
+        bytes_data = img_file_buffer.getvalue()
+
 else:
     st.subheader(":orange[5. About]")
     st.write('App này do tiengs89@gmail.com làm thử năm 2023 để giúp Gv')
