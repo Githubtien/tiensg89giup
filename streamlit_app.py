@@ -5,7 +5,7 @@ from PIL import ImageGrab
 from PIL import ImageOps
 import random
 import os
-import cv2 
+import opencv-python as cv2 
 import numpy as np 
 
 from funcs_cham_ptn import *
