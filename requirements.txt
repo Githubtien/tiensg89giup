@@ -1,5 +1,5 @@
 Pillow
-opencv-python-headless
+opencv-python
 imutils
 scipy
 streamlit_option_menu

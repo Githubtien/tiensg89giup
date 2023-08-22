@@ -4,7 +4,7 @@ from PIL import ImageGrab
 from PIL import ImageOps
 import random
 import os
-import cv
+import cv2 
 import numpy as np 
 from imutils.perspective import four_point_transform
 import imutils
@@ -58,7 +58,7 @@ def Cham_ptn_qua_camera(selected):
         #Xuli_cv2_img_take(cv2_img)
         # Check the type of cv2_img:
         # Should output: <class 'numpy.ndarray'>
-        st.image(cv2_img, 'anh cvvua bat')
+        st.image(cv2_img, 'anh cv2 vua bat')
 
         # Check the shape of cv2_img:
         # Should output shape: (height, width, channels)
