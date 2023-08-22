@@ -1,1 +1,1 @@
-opencv-contrib-python-headles
+opencv-python-headles
