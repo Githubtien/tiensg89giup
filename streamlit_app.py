@@ -1,32 +1,50 @@
-# -*- coding: utf-8 -*-
+import cv2
 import streamlit as st
+import numpy as np
 from PIL import Image
-from PIL import ImageGrab  
-from PIL import ImageOps
-import random
-import os
-import numpy as np 
-
-from funcs_cham_ptn import *
-from streamlit_option_menu import option_menu
 
 
-st.title("Chấm Điểm Trên Phiếu Trắc Nghiệm với Streamlit")
-
-with st.sidebar:
-    selected = option_menu("Main Menu", ["1. Cung cấp đáp án", "2. Upload Phiếu trắc nghiệm cho máy chấm",  
-                                         "3. Chấm qua Camera màn hình", "4. Hướng dẫn","5. About" ], default_index=0)
-
-if '3.' in selected:
-    st.subheader(":red["+selected+"]")
-    img_file_buffer = st.camera_input("Take a picture")
-
-    if img_file_buffer is not None:
-        # To read image file buffer with OpenCV:
-        bytes_data = img_file_buffer.getvalue()
-
-else:
-    st.subheader(":orange[5. About]")
-    st.write('App này do tiengs89@gmail.com làm thử năm 2023 để giúp Gv')
+def brighten_image(image, amount):
+    img_bright = cv2.convertScaleAbs(image, beta=amount)
+    return img_bright
 
 
+def blur_image(image, amount):
+    blur_img = cv2.GaussianBlur(image, (11, 11), amount)
+    return blur_img
+
+
+def enhance_details(img):
+    hdr = cv2.detailEnhance(img, sigma_s=12, sigma_r=0.15)
+    return hdr
+
+
+def main_loop():
+    st.title("OpenCV Demo App")
+    st.subheader("This app allows you to play with Image filters!")
+    st.text("We use OpenCV and Streamlit for this demo")
+
+    blur_rate = st.sidebar.slider("Blurring", min_value=0.5, max_value=3.5)
+    brightness_amount = st.sidebar.slider("Brightness", min_value=-50, max_value=50, value=0)
+    apply_enhancement_filter = st.sidebar.checkbox('Enhance Details')
+
+    image_file = st.file_uploader("Upload Your Image", type=['jpg', 'png', 'jpeg'])
+    if not image_file:
+        return None
+
+    original_image = Image.open(image_file)
+    original_image = np.array(original_image)
+
+    processed_image = blur_image(original_image, blur_rate)
+    processed_image = brighten_image(processed_image, brightness_amount)
+
+    if apply_enhancement_filter:
+        processed_image = enhance_details(processed_image)
+
+    st.text("Original Image vs Processed Image")
+    st.image([original_image, processed_image])
+
+
+if __name__ == '__main__':
+    main_loop()
+    
