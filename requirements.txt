@@ -1,6 +1,6 @@
 streamlit
-PIL
-cv2
-numpy
-os
-random
+Pillow
+opencv-python
+imutils
+scipy
+streamlit_option_menu
