@@ -1,25 +1,37 @@
+# -*- coding: utf-8 -*-
 import streamlit as st
-import cv2
+from PIL import Image
+from PIL import ImageGrab  
+from PIL import ImageOps
+import random
+import os
+import cv2 
+import numpy as np 
 
-def main():
-    st.set_page_config(page_title="Streamlit WebCam App")
-    st.title("Webcam Display Steamlit App")
-    st.caption("Powered by OpenCV, Streamlit")
-    cap = cv2.VideoCapture(0)
-    frame_placeholder = st.empty()
-    stop_button_pressed = st.button("Stop")
-    while cap.isOpened() and not stop_button_pressed:
-        ret, frame = cap.read()
-        if not ret:
-            st.write("Video Capture Ended")
-            break
-        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        frame_placeholder.image(frame,channels="RGB")
-        if cv2.waitKey(1) & 0xFF == ord("q") or stop_button_pressed:
-            break
-    cap.release()
-    #cv2.destroyAllWindows()
+from funcs_cham_ptn import *
+from streamlit_option_menu import option_menu
 
-#if __name__ == "__main__":
-main()
-    
+
+st.title("Chấm Điểm Trên Phiếu Trắc Nghiệm với Streamlit")
+
+with st.sidebar:
+    selected = option_menu("Main Menu", ["1. Cung cấp đáp án", "2. Upload Phiếu trắc nghiệm cho máy chấm",  
+                                         "3. Chấm qua Camera màn hình", "4. Hướng dẫn","5. About" ], default_index=0)
+if '1.' in selected:
+    ch_dap_an = Cung_cap_da(selected)    
+    st.write(ch_dap_an)
+
+elif '2.' in selected:
+    Upload_ptn_xulif(selected)    
+
+elif '3.' in selected:
+    Cham_ptn_qua_camera(selected)
+
+elif '4.' in selected:
+    Xem_txtmark_hdan(selected)
+else:
+    st.subheader(":orange[5. About]")
+    st.write('App này do tiengs89@gmail.com làm thử năm 2023 để giúp Gv')
+
+
+exit()
