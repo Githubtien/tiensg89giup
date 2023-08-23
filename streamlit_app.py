@@ -1,295 +1,144 @@
 # -*- coding: utf-8 -*-
-# Copyright 2018-2019 Streamlit Inc.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
-# This demo lets you to explore the Udacity self-driving car image dataset.
-# More info: https://github.com/streamlit/demo-self-driving
-
 import streamlit as st
-import altair as alt
-import pandas as pd
-import numpy as np
-import os, urllib, cv2
+from PIL import Image
+from PIL import ImageGrab  
+from PIL import ImageOps
+import random
+import os
+import cv2 
+import numpy as np 
 
-# Streamlit encourages well-structured code, like starting execution in a main() function.
-def main():
-    # Render the readme as markdown using st.markdown.
-    readme_text = st.markdown(get_file_content_as_string("instructions.md"))
+from funcs_cham_ptn import *
+#from funcs_cham_ptn import Cham_ptn_vanhien
+#from funcs_cham_ptn import brow_img
 
-    # Download external dependencies.
-    for filename in EXTERNAL_DEPENDENCIES.keys():
-        download_file(filename)
+#@st.cache
+#def load_image(image_file):
+#    img=Image.open(image_file)
+#    return img
+#color = st.color_picker('Pick A Color', '#00f900')
+#st.write('The current color is', color)
+#st.write("This is :red[test]")
+from streamlit_option_menu import option_menu
 
-    # Once we have the dependencies, add a selector for the app mode on the sidebar.
-    st.sidebar.title("What to do")
-    app_mode = st.sidebar.selectbox("Choose the app mode",
-        ["Show instructions", "Run the app", "Show the source code"])
-    if app_mode == "Show instructions":
-        st.sidebar.success('To continue select "Run the app".')
-    elif app_mode == "Show the source code":
-        readme_text.empty()
-        st.code(get_file_content_as_string("streamlit_app.py"))
-    elif app_mode == "Run the app":
-        readme_text.empty()
-        run_the_app()
 
-# This file downloader demonstrates Streamlit animation.
-def download_file(file_path):
-    # Don't download the file twice. (If possible, verify the download using the file length.)
-    if os.path.exists(file_path):
-        if "size" not in EXTERNAL_DEPENDENCIES[file_path]:
-            return
-        elif os.path.getsize(file_path) == EXTERNAL_DEPENDENCIES[file_path]["size"]:
-            return
+st.title("Chấm Điểm Trên Phiếu Trắc Nghiệm với Streamlit")
 
-    # These are handles to two visual elements to animate.
-    weights_warning, progress_bar = None, None
-    try:
-        weights_warning = st.warning("Downloading %s..." % file_path)
-        progress_bar = st.progress(0)
-        with open(file_path, "wb") as output_file:
-            with urllib.request.urlopen(EXTERNAL_DEPENDENCIES[file_path]["url"]) as response:
-                length = int(response.info()["Content-Length"])
-                counter = 0.0
-                MEGABYTES = 2.0 ** 20.0
-                while True:
-                    data = response.read(8192)
-                    if not data:
-                        break
-                    counter += len(data)
-                    output_file.write(data)
+with st.sidebar:
+    selected = option_menu("Main Menu", ["1. Cung cấp đáp án", "2. Upload Phiếu trắc nghiệm cho máy chấm",  
+                                         "3. Chấm qua Camera màn hình", "4. Hướng dẫn","5. About" ], default_index=0)
+if '1.' in selected:
+    ch_dap_an = Cung_cap_da(selected)    
+    st.write(ch_dap_an)
 
-                    # We perform animation by overwriting the elements.
-                    weights_warning.warning("Downloading %s... (%6.2f/%6.2f MB)" %
-                        (file_path, counter / MEGABYTES, length / MEGABYTES))
-                    progress_bar.progress(min(counter / length, 1.0))
+elif '2.' in selected:
+    Upload_ptn_xulif(selected)    
 
-    # Finally, we remove these visual elements by calling .empty().
-    finally:
-        if weights_warning is not None:
-            weights_warning.empty()
-        if progress_bar is not None:
-            progress_bar.empty()
+elif '3.' in selected:
+    Cham_ptn_qua_camera(selected)
 
-# This is the main app app itself, which appears when the user selects "Run the app".
-def run_the_app():
-    # To make Streamlit fast, st.cache allows us to reuse computation across runs.
-    # In this common pattern, we download data from an endpoint only once.
-    @st.experimental_memo
-    def load_metadata(url):
-        return pd.read_csv(url)
+elif '4.' in selected:
+    Xem_txtmark_hdan(selected)
+else:
+    st.subheader(":orange[5. About]")
+    st.write('App này do tiengs89@gmail.com làm thử năm 2023 để giúp Gv')
 
-    # This function uses some Pandas magic to summarize the metadata Dataframe.
-    @st.experimental_memo
-    def create_summary(metadata):
-        one_hot_encoded = pd.get_dummies(metadata[["frame", "label"]], columns=["label"])
-        summary = one_hot_encoded.groupby(["frame"]).sum().rename(columns={
-            "label_biker": "biker",
-            "label_car": "car",
-            "label_pedestrian": "pedestrian",
-            "label_trafficLight": "traffic light",
-            "label_truck": "truck"
-        })
-        return summary
 
-    # An amazing property of st.cached functions is that you can pipe them into
-    # one another to form a computation DAG (directed acyclic graph). Streamlit
-    # recomputes only whatever subset is required to get the right answer!
-    metadata = load_metadata(os.path.join(DATA_URL_ROOT, "labels.csv.gz"))
-    summary = create_summary(metadata)
+exit()
+st.title("Chấm Điểm Trên Phiếu Trắc Nghiệm")
+menu = ["Chấm Điểm Trên Phiếu Trắc Nghiệm","", "1. Cung cấp đáp án", "2. Upload Phiếu trác nghiệm và chấm", "3. Chấm tự động mọi PTN", "4. Chấm bằng Camera màn hình", "About"]
+choice = st.sidebar.selectbox("MENU",menu)
 
-    # Uncomment these lines to peek at these DataFrames.
-    # st.write('## Metadata', metadata[:1000], '## Summary', summary[:1000])
+if choice == "1. Chấm thi trên Phiếu Trắc Nghiệm":
+    st.subheader(":red[1. Chấm thi trên Phiếu Trắc Nghiệm]")
+    chononoff=st.radio("", ('OFF : Xem Hướng Dẫn :', 'ON') ,horizontal=True,key=1)
+    if chononoff=='ON':
+        st.markdown(Xem_txtmark_hdan())
+    st.markdown("---")
 
-    # Draw the UI elements to search for objects (pedestrians, cars, etc.)
-    selected_frame_index, selected_frame = frame_selector_ui(summary)
-    if selected_frame_index == None:
-        st.error("No frames fit the criteria. Please select different label or number.")
-        return
 
-    # Draw the UI element to select parameters for the YOLO object detector.
-    confidence_threshold, overlap_threshold = object_detector_ui()
+    st.markdown("Bước 1 : cung cấp đáp án. Có 2 cách: một là nhập trực tiếp, hai là upload ảnh của PTN đáp án lên.")
+    #1. Tải lên file **:blue[PTN đáp án]** để máy căn cứ vào đó mà chấm PTN của học viên. \n 
+    chononoff2=st.radio("", ('OFF : Nhập trực tiếp đáp án :', 'ON') ,horizontal=True,key=2)
 
-    # Load the image from S3.
-    image_url = os.path.join(DATA_URL_ROOT, selected_frame)
-    image = load_image(image_url)
+    if chononoff2=='ON':
+        otitle = st.text_input('Nhập đáp án vào dòng dưới đây:', '1A, 2B, 3A, 4B ')
+        ch=str(otitle)
+        sodauphay = ch.count(',')
+        st.write('Số đáp án đã nhập khi ENTER là : '+str(sodauphay+1))
+        l=ch.split(',')
+        #for pt in l:
+        #    st.write(pt)
+    else:
 
-    # Add boxes for objects on the image. These are the boxes for the ground image.
-    boxes = metadata[metadata.frame == selected_frame].drop(columns=["frame"])
-    draw_image_with_boxes(image, boxes, "Ground Truth",
-        "**Human-annotated data** (frame `%i`)" % selected_frame_index)
+        st.markdown(''' **:red[Đây là nơi để tải lên tệp ảnh PTN (UPLOAD FILE IMAGE)]** :yellow_heart:''') 
+        image_file = st.file_uploader(":green[Chọn 1 tệp ảnh Phiếu Trăc Nghiệm để tải lên.]",type=("png", "jpg"),key=4)
+        st.markdown("---")
+        
+        
 
-    # Get the boxes for the objects detected by YOLO by running the YOLO model.
-    yolo_boxes = yolo_v3(image, confidence_threshold, overlap_threshold)
-    draw_image_with_boxes(image, yolo_boxes, "Real-time Computer Vision",
-        "**YOLO v3 Model** (overlap `%3.1f`) (confidence `%3.1f`)" % (overlap_threshold, confidence_threshold))
 
-# This sidebar UI is a little search engine to find certain object types.
-def frame_selector_ui(summary):
-    st.sidebar.markdown("# Frame")
+        ch_da_bl = ''
+        if image_file is not None and 'dap_an_' in image_file.name:
+            st.write(':blue[Tệp Ảnh Phiếu trác nghiệm đáp án ( '+image_file.name + ' ) đã được tải lên]')
+            
+            dic_dap_an = Lay_dap_an_tu_file_anh(image_file,dic_dap_an)
+            ch_da_bl, SO_DAU_HOI_IN_DA = Xu_li_dap_an(dic_dap_an)
 
-    # The user can pick which type of object to search for.
-    object_type = st.sidebar.selectbox("Search for which objects?", summary.columns, 2)
+            if SO_DAU_HOI_IN_DA>0:
+                st.markdown(ch_da_bl)
+                st.markdown('Hãy làm lại để có được đáp án chuẩn!')
+            else:
+                st.markdown(ch_da_bl)
+                st.markdown('TT')
 
-    # The user can select a range for how many of the selected objecgt should be present.
-    min_elts, max_elts = st.sidebar.slider("How many %ss (select a range)?" % object_type, 0, 25, [10, 20])
-    selected_frames = get_selected_frames(summary, object_type, min_elts, max_elts)
-    if len(selected_frames) < 1:
-        return None, None
+        st.markdown("---")
 
-    # Choose a frame out of the selected frames.
-    selected_frame_index = st.sidebar.slider("Choose a frame (index)", 0, len(selected_frames) - 1, 0)
+        if SO_DAU_HOI_IN_DA > 0 and image_file is not None and 'dap_an_' not in image_file.name:
+            st.markdown('khong xl f nay vi da xau')
+        if SO_DAU_HOI_IN_DA == 0 and image_file is not None:
+            
+            st.markdown(''' **:red[Đây là nơi để tải lên tệp ảnh PTN (UPLOAD FILE IMAGE)]** :yellow_heart:''') 
+            image_file2 = st.file_uploader(":green[Cbbbbbb bbbbb họn 1 tệp ảnh Phiếu Trăc Nghiệm để tải lên.]",type=("png", "jpg"), key=2)
+            st.markdown('ok da t')
+            
+            #st.write(image_file.name + ' đã được tải lên')
+            #dic_dap_an,SO_DAU_HOI_IN_DA = Lay_dap_an_tu_file_anh(image_file,dic_dap_an)
+            #if SO_DAU_HOI_IN_DA > 0:
+            #    dic_dap_an,SO_DAU_HOI_IN_DA,ch_da_bl = Xem_gon_dap_an(dic_dap_an,SO_DAU_HOI_IN_DA,ch_da_bl)
+            #    st.write(ch_da_bl)
+            #    st.write(":red[Bước 2 :] "+ " :blue[Bây giờ hãy chọn một file ảnh Phiếu Trăc Nghiệm dap an khac.]")
+            #else:
+            #    dic_dap_an,SO_DAU_HOI_IN_DA,ch_da_bl = Xem_gon_dap_an(dic_dap_an,SO_DAU_HOI_IN_DA,ch_da_bl)
+            #    st.write(ch_da_bl)
 
-    # Draw an altair chart in the sidebar with information on the frame.
-    objects_per_frame = summary.loc[selected_frames, object_type].reset_index(drop=True).reset_index()
-    chart = alt.Chart(objects_per_frame, height=120).mark_area().encode(
-        alt.X("index:Q", scale=alt.Scale(nice=False)),
-        alt.Y("%s:Q" % object_type))
-    selected_frame_df = pd.DataFrame({"selected_frame": [selected_frame_index]})
-    vline = alt.Chart(selected_frame_df).mark_rule(color="red").encode(x = "selected_frame")
-    st.sidebar.altair_chart(alt.layer(chart, vline))
+            #    st.write(":red[Bước 2 :] "+ " :blue[Bây giờ hãy chọn một file ảnh Phiếu Trăc Nghiệm của học viên để tải lên chấm.]")
 
-    selected_frame = selected_frames[selected_frame_index]
-    return selected_frame_index, selected_frame
+            #    pilImg_goc2 = Image.open(image_file)
+            #    arrImg2 = np.array(pilImg_goc2)
+            #    cv2Img2 = cv2.cvtColor(arrImg2, cv2.COLOR_RGB2BGR)    #mang numpyarray nhung doi sang he mau cua cv2
+            #    cv2Img2 = cv2.rotate(cv2Img2, cv2.ROTATE_90_CLOCKWISE)
 
-# Select frames based on the selection in the sidebar
-@st.cache(hash_funcs={np.ufunc: str})
-def get_selected_frames(summary, label, min_elts, max_elts):
-    return summary[np.logical_and(summary[label] >= min_elts, summary[label] <= max_elts)].index
+            #    paper2, ket_qua_thi = Cham_ptn_vanhien_hv(cv2Img2, dic_dap_an)
 
-# This sidebar UI lets the user select parameters for the YOLO object detector.
-def object_detector_ui():
-    st.sidebar.markdown("# Model")
-    confidence_threshold = st.sidebar.slider("Confidence threshold", 0.0, 1.0, 0.5, 0.01)
-    overlap_threshold = st.sidebar.slider("Overlap threshold", 0.0, 1.0, 0.3, 0.01)
-    return confidence_threshold, overlap_threshold
+            #    st.write("Cham xong. Duoi day la anh PTN da cham")
 
-# Draws an image with boxes overlayed to indicate the presence of cars, pedestrians etc.
-def draw_image_with_boxes(image, boxes, header, description):
-    # Superpose the semi-transparent object detection boxes.    # Colors for the boxes
-    LABEL_COLORS = {
-        "car": [255, 0, 0],
-        "pedestrian": [0, 255, 0],
-        "truck": [0, 0, 255],
-        "trafficLight": [255, 255, 0],
-        "biker": [255, 0, 255],
-    }
-    image_with_boxes = image.astype(np.float64)
-    for _, (xmin, ymin, xmax, ymax, label) in boxes.iterrows():
-        image_with_boxes[int(ymin):int(ymax),int(xmin):int(xmax),:] += LABEL_COLORS[label]
-        image_with_boxes[int(ymin):int(ymax),int(xmin):int(xmax),:] /= 2
+            #    img2 = cv2.cvtColor(paper2, cv2.COLOR_BGR2RGB)
+            #    im_pil2 = Image.fromarray(img2)
 
-    # Draw the header and image.
-    st.subheader(header)
-    st.markdown(description)
-    st.image(image_with_boxes.astype(np.uint8), use_column_width=True)
+                # For reversing the operation:
+            #    pil_im_pil2 = np.asarray(im_pil2)
 
-# Download a single file and make its content available as a string.
-@st.experimental_singleton(show_spinner=False)
-def get_file_content_as_string(path):
-    url = 'https://raw.githubusercontent.com/streamlit/demo-self-driving/master/' + path
-    response = urllib.request.urlopen(url)
-    return response.read().decode("utf-8")
+                #dung ham exif_transpose(imggocinPil) cua modul ImageOps in PIL de xoay lai anh trong st.image
+                #pil_im_pil2 = ImageOps.exif_transpose(im_pil2)
 
-# This function loads an image from Streamlit public repo on S3. We use st.cache on this
-# function as well, so we can reuse the images across runs.
-@st.experimental_memo(show_spinner=False)
-def load_image(url):
-    with urllib.request.urlopen(url) as response:
-        image = np.asarray(bytearray(response.read()), dtype="uint8")
-    image = cv2.imdecode(image, cv2.IMREAD_COLOR)
-    image = image[:, :, [2, 1, 0]] # BGR -> RGB
-    return image
+            #    st.image(pil_im_pil2, caption='Phiếu trắc nghiệm đã được chấm!')
 
-# Run the YOLO model to detect objects.
-def yolo_v3(image, confidence_threshold, overlap_threshold):
-    # Load the network. Because this is cached it will only happen once.
-    @st.cache(allow_output_mutation=True)
-    def load_network(config_path, weights_path):
-        net = cv2.dnn.readNetFromDarknet(config_path, weights_path)
-        output_layer_names = net.getLayerNames()
-        output_layer_names = [output_layer_names[i - 1] for i in net.getUnconnectedOutLayers()]
-        return net, output_layer_names
-    net, output_layer_names = load_network("yolov3.cfg", "yolov3.weights")
+            #    #st.write(":red["+ket_qua_thi+"]")
+         
 
-    # Run the YOLO neural net.
-    blob = cv2.dnn.blobFromImage(image, 1 / 255.0, (416, 416), swapRB=True, crop=False)
-    net.setInput(blob)
-    layer_outputs = net.forward(output_layer_names)
+else:
+    st.subheader(":blue[2. About]")
+    st.write('App này do tiengs89@gmail.com làm thử năm 2023 để giúp Gs Đạo')
 
-    # Supress detections in case of too low confidence or too much overlap.
-    boxes, confidences, class_IDs = [], [], []
-    H, W = image.shape[:2]
-    for output in layer_outputs:
-        for detection in output:
-            scores = detection[5:]
-            classID = np.argmax(scores)
-            confidence = scores[classID]
-            if confidence > confidence_threshold:
-                box = detection[0:4] * np.array([W, H, W, H])
-                centerX, centerY, width, height = box.astype("int")
-                x, y = int(centerX - (width / 2)), int(centerY - (height / 2))
-                boxes.append([x, y, int(width), int(height)])
-                confidences.append(float(confidence))
-                class_IDs.append(classID)
-    indices = cv2.dnn.NMSBoxes(boxes, confidences, confidence_threshold, overlap_threshold)
-
-    # Map from YOLO labels to Udacity labels.
-    UDACITY_LABELS = {
-        0: 'pedestrian',
-        1: 'biker',
-        2: 'car',
-        3: 'biker',
-        5: 'truck',
-        7: 'truck',
-        9: 'trafficLight'
-    }
-    xmin, xmax, ymin, ymax, labels = [], [], [], [], []
-    if len(indices) > 0:
-        # loop over the indexes we are keeping
-        for i in indices.flatten():
-            label = UDACITY_LABELS.get(class_IDs[i], None)
-            if label is None:
-                continue
-
-            # extract the bounding box coordinates
-            x, y, w, h = boxes[i][0], boxes[i][1], boxes[i][2], boxes[i][3]
-
-            xmin.append(x)
-            ymin.append(y)
-            xmax.append(x+w)
-            ymax.append(y+h)
-            labels.append(label)
-
-    boxes = pd.DataFrame({"xmin": xmin, "ymin": ymin, "xmax": xmax, "ymax": ymax, "labels": labels})
-    return boxes[["xmin", "ymin", "xmax", "ymax", "labels"]]
-
-# Path to the Streamlit public S3 bucket
-DATA_URL_ROOT = "https://streamlit-self-driving.s3-us-west-2.amazonaws.com/"
-
-# External files to download.
-EXTERNAL_DEPENDENCIES = {
-    "yolov3.weights": {
-        "url": "https://pjreddie.com/media/files/yolov3.weights",
-        "size": 248007048
-    },
-    "yolov3.cfg": {
-        "url": "https://raw.githubusercontent.com/pjreddie/darknet/master/cfg/yolov3.cfg",
-        "size": 8342
-    }
-}
-
-if __name__ == "__main__":
-    main()
     
