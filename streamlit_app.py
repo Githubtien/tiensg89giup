@@ -7,19 +7,8 @@ import random
 import os
 import cv2 
 import numpy as np 
-
-from funcs_cham_ptn import *
-#from funcs_cham_ptn import Cham_ptn_vanhien
-#from funcs_cham_ptn import brow_img
-
-#@st.cache
-#def load_image(image_file):
-#    img=Image.open(image_file)
-#    return img
-#color = st.color_picker('Pick A Color', '#00f900')
-#st.write('The current color is', color)
-#st.write("This is :red[test]")
 from streamlit_option_menu import option_menu
+from funcs_cham_ptn import *
 
 
 st.title("Chấm Điểm Trên Phiếu Trắc Nghiệm với Streamlit")

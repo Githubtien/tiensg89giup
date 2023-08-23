@@ -9,6 +9,7 @@ import numpy as np
 from imutils.perspective import four_point_transform
 import imutils
 import pickle
+
 global SO_DAU_HOI_IN_DA, dic_dap_an, ch_dap_an
 SO_DAU_HOI_IN_DA = 0
 dic_dap_an = {}
