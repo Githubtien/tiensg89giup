@@ -1,3 +1,5 @@
-opencv-contrib==4.6.0.66
+opencv-python
+opencv-python-headless
+opencv-contrib-python
 imutils
 streamlit_option_menu
