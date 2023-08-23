@@ -3,6 +3,7 @@ import streamlit as st
 from PIL import Image
 from PIL import ImageGrab  
 from PIL import ImageOps
+from PIL import ImageFilter
 import numpy as np 
 #import cv2 
 import random
@@ -22,7 +23,20 @@ def Cham_ptn_qua_camera(selected):
         #Xuli_cv2_img_take(cv2_img)
         # Check the type of cv2_img:
         # Should output: <class 'numpy.ndarray'>
-        st.image(bytes_data, 'anh cv2 vua bat')
+        #st.image(bytes_data, 'anh cv2 vua bat')
+        # in order to deal with '\' in paths)
+
+        image = bytes_data.convert("L")
+ 
+        # Detecting Edges on the Image using the argument ImageFilter.FIND_EDGES
+        image = image.filter(ImageFilter.FIND_EDGES)
+        st.image(image, 'anh cv2 vua bat')
+
+        #image  = image.rotate(-90)
+ 
+        # Saving the Image Under the name Edge_Sample.png
+        image.save(r"T-Edge_Sample.jpg")
+
 
         # Check the shape of cv2_img:
         # Should output shape: (height, width, channels)
