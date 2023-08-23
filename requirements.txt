@@ -1,5 +1,1 @@
-#numpy
-#streamlit
-#opencv-python-headless
-#imutils
-#streamlit_option_menu
+opencv-python-headless
