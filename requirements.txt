@@ -1,3 +1,3 @@
-opencv-python==4.8.0.76
+opencv-python-headless
 imutils
 streamlit_option_menu
