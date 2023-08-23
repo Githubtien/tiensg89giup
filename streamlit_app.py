@@ -4,7 +4,7 @@ from PIL import Image
 from PIL import ImageGrab  
 from PIL import ImageOps
 import numpy as np 
-#import cv2 
+import cv2 
 import random
 import os
 from streamlit_option_menu import option_menu
@@ -22,7 +22,7 @@ def Cham_ptn_qua_camera(selected):
         #Xuli_cv2_img_take(cv2_img)
         # Check the type of cv2_img:
         # Should output: <class 'numpy.ndarray'>
-        st.image(cv2_img, 'anh cv2 vua bat')
+        #st.image(cv2_img, 'anh cv2 vua bat')
 
         # Check the shape of cv2_img:
         # Should output shape: (height, width, channels)
