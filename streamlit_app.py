@@ -4,7 +4,7 @@ from PIL import Image
 from PIL import ImageGrab  
 from PIL import ImageOps
 import numpy as np 
-import cv2 
+#import cv2 
 import random
 import os
 from streamlit_option_menu import option_menu
@@ -17,7 +17,7 @@ def Cham_ptn_qua_camera(selected):
     if img_file_buffer is not None:
         # To read image file buffer with OpenCV:
         bytes_data = img_file_buffer.getvalue()
-        cv2_img = cv2.imdecode(np.frombuffer(bytes_data, np.uint8), cv2.IMREAD_COLOR)
+        #cv2_img = cv2.imdecode(np.frombuffer(bytes_data, np.uint8), cv2.IMREAD_COLOR)
         #st.write('ban vua bat anh nay: ')
         #Xuli_cv2_img_take(cv2_img)
         # Check the type of cv2_img:
