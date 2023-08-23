@@ -7,8 +7,6 @@ import random
 import os
 import cv2 
 import numpy as np 
-
-from funcs_cham_ptn import *
 from streamlit_option_menu import option_menu
 
 
@@ -17,14 +15,7 @@ st.title("Chấm Điểm Trên Phiếu Trắc Nghiệm với Streamlit")
 with st.sidebar:
     selected = option_menu("Main Menu", ["1. Cung cấp đáp án", "2. Upload Phiếu trắc nghiệm cho máy chấm",  
                                          "3. Chấm qua Camera màn hình", "4. Hướng dẫn","5. About" ], default_index=0)
-if '1.' in selected:
-    ch_dap_an = Cung_cap_da(selected)    
-    st.write(ch_dap_an)
-
-elif '2.' in selected:
-    Upload_ptn_xulif(selected)    
-
-elif '3.' in selected:
+if '3.' in selected:
     Cham_ptn_qua_camera(selected)
 
 elif '4.' in selected:
