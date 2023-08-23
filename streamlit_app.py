@@ -8,6 +8,7 @@ import os
 import cv2 
 import numpy as np 
 from streamlit_option_menu import option_menu
+
 def Xem_txtmark_hdan(selected):
     st.subheader(":blue["+selected+"]")
     txtmark='''
@@ -25,7 +26,25 @@ def Xem_txtmark_hdan(selected):
     '''
     st.markdown(txtmark)
 
+def Cham_ptn_qua_camera(selected):
+    st.subheader(":red["+selected+"]")
+    img_file_buffer = st.camera_input("Take a picture")
 
+    if img_file_buffer is not None:
+        # To read image file buffer with OpenCV:
+        bytes_data = img_file_buffer.getvalue()
+        cv2_img = cv2.imdecode(np.frombuffer(bytes_data, np.uint8), cv2.IMREAD_COLOR)
+        #st.write('ban vua bat anh nay: ')
+        #Xuli_cv2_img_take(cv2_img)
+        # Check the type of cv2_img:
+        # Should output: <class 'numpy.ndarray'>
+        st.image(cv2_img, 'anh cv2 vua bat')
+
+        # Check the shape of cv2_img:
+        # Should output shape: (height, width, channels)
+        #st.write(cv2_img.shape)    
+
+##########################################################
 st.title("Chấm Điểm Trên Phiếu Trắc Nghiệm với Streamlit")
 
 with st.sidebar:
