@@ -245,10 +245,11 @@ def Xem_file_hdan():
     st.subheader(":red[1. Chấm thi trên Phiếu Trắc Nghiệm]")
     chononoff=st.radio("", ('OFF : Xem Hướng Dẫn :', 'ON') ,horizontal=True)
     if chononoff=='ON':
-        with open("hdanchamptn.pdf","rb") as f:
-            base64_pdf = base64.b64encode(f.read()).decode('utf-8')
-        pdf_display = f'<iframe src="data:application/pdf;base64,{base64_pdf}" width="800" height="600" type="application/pdf"></iframe>'
-        st.markdown(pdf_display, unsafe_allow_html=True)
+        pass
+        #with open("hdanchamptn.pdf","rb") as f:
+        #    base64_pdf = base64.b64encode(f.read()).decode('utf-8')
+        #pdf_display = f'<iframe src="data:application/pdf;base64,{base64_pdf}" width="800" height="600" type="application/pdf"></iframe>'
+        #st.markdown(pdf_display, unsafe_allow_html=True)
     else:
         pass
     st.write("---")
