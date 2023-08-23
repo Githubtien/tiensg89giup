@@ -26,16 +26,13 @@ def Cham_ptn_qua_camera(selected):
         #st.image(bytes_data, 'anh cv2 vua bat')
         # in order to deal with '\' in paths)
 
-        image = bytes_data.convert("L")
  
         # Detecting Edges on the Image using the argument ImageFilter.FIND_EDGES
-        image = image.filter(ImageFilter.FIND_EDGES)
-        st.image(image, 'anh cv2 vua bat')
+        st.image(bytes_data, 'anh cv2 vua bat')
 
         #image  = image.rotate(-90)
  
         # Saving the Image Under the name Edge_Sample.png
-        image.save(r"T-Edge_Sample.jpg")
 
 
         # Check the shape of cv2_img:
