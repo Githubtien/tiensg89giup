@@ -1,3 +1,5 @@
+numpy 
 opencv-python-headless
-streamlit-option-menu
+imutils
+pickle
 
