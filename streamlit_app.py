@@ -495,7 +495,7 @@ def Cham_ptn_vanhien_hv(image, dic_dap_an):
     for i, cnt in enumerate(cnts_200bubs_sxep_inpaper):
         x,y,w,h = cv2.boundingRect(cnt)
         anh = thresh[y+bdaycat:y+h-2*bdaycat, x+bdaycat:x+w-2*bdaycat]
-        anh = cv2.resize(anh, (28, 28), cv2.INTER_AREA)
+        #anh = cv2.resize(anh, (28, 28), cv2.INTER_AREA)
         #anh = anh.reshape((28, 28, 1))
         #print(anh)
         #print(anh.shape)
@@ -641,7 +641,7 @@ def Upload_fileimg_ptn():
         cv2Img = cv2.rotate(cv2Img, cv2.ROTATE_90_CLOCKWISE)
         paper, ket_qua_thi = Cham_ptn_vanhien_hv(cv2Img, dic_dap_an)
         
-        st.write("Cham xong. Duoi day la anh PTN da cham")
+        st.write("Chấm xong. Dưới đây là ảnh PTN đã chấm:")
 
         img = cv2.cvtColor(paper, cv2.COLOR_BGR2RGB)
         im_pil = Image.fromarray(img)
@@ -674,5 +674,5 @@ if st.checkbox('**:red[Bước 2 : Cung cấp đáp án]**'):
 if st.checkbox('**:red[Bước 3 : Chụp PTN bằng camera online và xử lí auto]**'):
     Cham_ptn_qua_camera(dic_dap_an)
 
-if st.checkbox('**:red[Phụ lục (thay cho bước 3) : Upload file image PTN trong máy lên, sau đó lây về kết quả]**'):
+if st.checkbox('**:red[Phụ lục (Thay cho bước 3) : Upload file image PTN trong máy lên, sau đó kết quả auto trả về]**'):
     Upload_fileimg_ptn()
