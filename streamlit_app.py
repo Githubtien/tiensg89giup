@@ -13,7 +13,8 @@ from PIL import ImageOps
 #from PIL import ImageGrab  
 import imutils
 #from imutils.perspective import four_point_transform
-
+global dic_dap_an
+dic_dap_an={}
 ##########################
 def order_points(pts):
 	rect = np.zeros((4, 2), dtype = "float32")
@@ -426,10 +427,8 @@ def lay_dic_dap_an(dic_dap_an, ch_da,  tenfda_dang_dung):
     return dic_dap_an,ch_da,tenfda_dang_dung
 
 def Cham_ptn_vanhien_hv(image, dic_dap_an):
-    st.image(image)
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     thresh = cv2.threshold(gray,0, 255,cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)[1] 
-    st.image(thresh)
     cnts_4KV_top, cnts_4KV_bot = Find_4kv_Black_Big_Top_Bot(image)
     paper = Scanhoa_from_4dinh_of4kv_mark(image,cnts_4KV_top, cnts_4KV_bot)
     # Tim cac cnts EXTERNAL tren paper
@@ -627,9 +626,41 @@ def Cham_ptn_vanhien_hv(image, dic_dap_an):
 
     return  paper, ket_qua_thi 
 
+def Upload_fileimg_ptn():
+    if dic_dap_an == {}:
+        return st.write('Không thể làm việc vì chưa cung cấp đáp án!')    
+    
+    image_file = st.file_uploader(":green[Chọn 1 file ảnh Phiếu Trăc Nghiệm để tải lên.]",type=("png", "jpg"), key=4)
+
+    if image_file is not None:
+        #st.write(image_file.name + ' đã được tải lên')
+
+        pilImg_goc = Image.open(image_file)
+        arrImg = np.array(pilImg_goc)
+        cv2Img = cv2.cvtColor(arrImg, cv2.COLOR_RGB2BGR)    #mang numpyarray nhung doi sang he mau cua cv2
+        cv2Img = cv2.rotate(cv2Img, cv2.ROTATE_90_CLOCKWISE)
+        paper, ket_qua_thi = Cham_ptn_vanhien_hv(cv2Img, dic_dap_an)
+        
+        st.write("Cham xong. Duoi day la anh PTN da cham")
+
+        img = cv2.cvtColor(paper, cv2.COLOR_BGR2RGB)
+        im_pil = Image.fromarray(img)
+
+        # For reversing the operation:
+        pil_im_pil = np.asarray(im_pil)
+
+        #dung ham exif_transpose(imggocinPil) cua modul ImageOps in PIL de xoay lai anh trong st.image
+        pil_im_pil = ImageOps.exif_transpose(im_pil)
+
+        st.image(pil_im_pil, caption='Phiếu trắc nghiệm đã được chấm!')
+
+        st.write(":red["+ket_qua_thi+"]")
+         
+
+
 ################################################################################################
 # main()
-global dic_dap_an
+#global dic_dap_an
 
 st.title("Chấm PTN bằng Camera online")
 if st.checkbox('**:red[Bước 1 : Chọn mẫu phiếu]**'):
@@ -641,5 +672,7 @@ if st.checkbox('**:red[Bước 2 : Cung cấp đáp án]**'):
     #st.write(ch_da)
 
 if st.checkbox('**:red[Bước 3 : Chụp PTN bằng camera online và xử lí auto]**'):
-    st.write(dic_dap_an)
     Cham_ptn_qua_camera(dic_dap_an)
+
+if st.checkbox('**:red[Phụ lục (thay cho bước 3) : Upload file image PTN trong máy lên, sau đó lây về kết quả]**'):
+    Upload_fileimg_ptn()
