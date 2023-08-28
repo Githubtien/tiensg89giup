@@ -112,16 +112,16 @@ def Cung_cap_da():
         st.markdown(txtmark)
         st.write(ch_da)
 
-    if st.checkbox(':blue[Muốn chụp 1 PTN đáp án khác để thay thế:]'):
+    if st.checkbox(':blue[Muốn tải lên 1 PTN đáp án khác :]'):
+        image_file_da = st.file_uploader(":green[Chọn 1 file ảnh Phiếu Trăc Nghiệm để tải lên.]",type=("png", "jpg"), key='DA')
 
-        img_file_buffer = st.camera_input("",key='CCDA')
-        if img_file_buffer is not None:
-            # To read image file buffer with OpenCV:
-            bytes_data = img_file_buffer.getvalue()
-            cv2_img = cv2.imdecode(np.frombuffer(bytes_data, np.uint8), cv2.IMREAD_COLOR)
-            #paper = cham_ptn_vanhien(cv2_img,dic_dap_an)
-            dic_dap_an = Cham_ptn_vanhien_da(cv2_img)
-            
+        if image_file_da is not None:
+            pilImg_goc_da = Image.open(image_file_da)
+            arrImg = np.array(pilImg_goc_da)
+            cv2Img = cv2.cvtColor(arrImg, cv2.COLOR_RGB2BGR)    #mang numpyarray nhung doi sang he mau cua cv2
+            cv2Img = cv2.rotate(cv2Img, cv2.ROTATE_90_CLOCKWISE)
+            dic_dap_an = Cham_ptn_vanhien_da(cv2Img)
+
             if dic_dap_an != {}:
                 ch_da = ''
                 for keyd in dic_dap_an:
