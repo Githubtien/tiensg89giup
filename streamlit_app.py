@@ -662,7 +662,7 @@ def Upload_fileimg_ptn():
 # main()
 #global dic_dap_an
 
-st.title("Chấm PTN bằng Camera online")
+st.title("Chấm Phiếu Trắc Nghiệm auto online")
 if st.checkbox('**:red[Bước 1 : Chọn mẫu phiếu]**'):
     mau_phieu_chon = Chon_mau_phieu()
     st.write('Mẫu phiếu đã chọn là : '+mau_phieu_chon)
