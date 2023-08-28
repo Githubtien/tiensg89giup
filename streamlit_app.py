@@ -395,6 +395,9 @@ def check_4kvd_in_img(image):
     return cnt_4c_TOP, cnt_4c_BOT
 
 def Cham_ptn_qua_camera(dic_dap_an):
+    if dic_dap_an == {}:
+        return st.write('Không thể làm việc vì chưa cung cấp đáp án!')    
+
     img_file_buffer = st.camera_input("Chụp Phiếu Trắc Nghiệm (nhấp vào Take Photo) sao cho có 4 khối đen trong PTN ở 4 góc ảnh",key='CPTNQC')
 
     if img_file_buffer is not None:
@@ -668,8 +671,10 @@ if st.checkbox('**:red[Bước 1 : Chọn mẫu phiếu]**'):
     st.write('Mẫu phiếu đã chọn là : '+mau_phieu_chon)
 
 if st.checkbox('**:red[Bước 2 : Cung cấp đáp án]**'):
-    dic_dap_an, ch_da = Cung_cap_da()    
-    #st.write(ch_da)
+    if mau_phieu_chon != '':
+        dic_dap_an, ch_da = Cung_cap_da()
+    else:        
+        st.write('Chưa chọn mẫu phiếu TN nên không thể làm việc!')
 
 if st.checkbox('**:red[Bước 3 : Chụp PTN bằng camera online và xử lí auto]**'):
     Cham_ptn_qua_camera(dic_dap_an)
