@@ -13,8 +13,9 @@ from PIL import ImageOps
 #from PIL import ImageGrab  
 import imutils
 #from imutils.perspective import four_point_transform
-global dic_dap_an
+global dic_dap_an,mau_phieu_chon
 dic_dap_an={}
+mau_phieu_chon=''
 ##########################
 def order_points(pts):
 	rect = np.zeros((4, 2), dtype = "float32")
@@ -663,7 +664,7 @@ def Upload_fileimg_ptn():
 
 ################################################################################################
 # main()
-#global dic_dap_an
+
 
 st.title("Chấm Phiếu Trắc Nghiệm auto online")
 if st.checkbox('**:red[Bước 1 : Chọn mẫu phiếu]**'):
@@ -671,9 +672,9 @@ if st.checkbox('**:red[Bước 1 : Chọn mẫu phiếu]**'):
     st.write('Mẫu phiếu đã chọn là : '+mau_phieu_chon)
 
 if st.checkbox('**:red[Bước 2 : Cung cấp đáp án]**'):
-    if mau_phieu_chon != '':
+    if mau_phieu_chon !='':
         dic_dap_an, ch_da = Cung_cap_da()
-    else:        
+    else:    
         st.write('Chưa chọn mẫu phiếu TN nên không thể làm việc!')
 
 if st.checkbox('**:red[Bước 3 : Chụp PTN bằng camera online và xử lí auto]**'):
