@@ -426,7 +426,10 @@ def lay_dic_dap_an(dic_dap_an, ch_da,  tenfda_dang_dung):
     return dic_dap_an,ch_da,tenfda_dang_dung
 
 def Cham_ptn_vanhien_hv(image, dic_dap_an):
-    #print(dic_dap_an)
+    st.image(image)
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    thresh = cv2.threshold(gray,0, 255,cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)[1] 
+    st.image(thresh)
     cnts_4KV_top, cnts_4KV_bot = Find_4kv_Black_Big_Top_Bot(image)
     paper = Scanhoa_from_4dinh_of4kv_mark(image,cnts_4KV_top, cnts_4KV_bot)
     # Tim cac cnts EXTERNAL tren paper
@@ -638,4 +641,5 @@ if st.checkbox('**:red[Bước 2 : Cung cấp đáp án]**'):
     #st.write(ch_da)
 
 if st.checkbox('**:red[Bước 3 : Chụp PTN bằng camera online và xử lí auto]**'):
+    st.write(dic_dap_an)
     Cham_ptn_qua_camera(dic_dap_an)
