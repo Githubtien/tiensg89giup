@@ -659,7 +659,26 @@ def Upload_fileimg_ptn():
         st.image(pil_im_pil, caption='Phiếu trắc nghiệm đã được chấm!')
 
         st.write(":red["+ket_qua_thi+"]")
-         
+
+        from datetime import datetime
+        now = datetime.now()
+        dt_string = now.strftime("%Y/%m/%d %H:%M:%S")
+        ch=dt_string.replace('/','_')
+        ch=ch.replace(' ','_')
+        ch=ch.replace(':','')
+        str_tep = ch +'.jpg'
+
+        from io import BytesIO
+        buf = BytesIO()
+        pil_im_pil.save(buf, format="JPEG") # pil_im_pil la np.aray trong PIL cua anh tren
+        byte_im = buf.getvalue()
+        #use the st.download_button
+        btn = st.download_button(
+            label = ":blue[Download Phiếu trắc nghiệm với kết quả vừa được chấm!]",
+            data = byte_im,
+            file_name = str_tep,
+            mime="image/jpeg",
+            )
 
 
 ################################################################################################
@@ -677,8 +696,8 @@ if st.checkbox('**:red[Bước 2 : Cung cấp đáp án]**'):
     else:    
         st.write('Chưa chọn mẫu phiếu TN nên không thể làm việc!')
 
-if st.checkbox('**:red[Bước 3 : Chụp PTN bằng camera online và xử lí auto]**'):
-    Cham_ptn_qua_camera(dic_dap_an)
-
-if st.checkbox('**:red[Phụ lục (Thay cho bước 3) : Upload file image PTN trong máy lên, sau đó kết quả auto trả về]**'):
+if st.checkbox('**:red[Bước 3 : Upload file image PTN trong máy lên, sau đó auto chấm rồi trả về kết quả.]**'):
     Upload_fileimg_ptn()
+
+if st.checkbox('**:red[Phụ lục : Chụp PTN bằng camera online và xử lí auto]**'):
+    Cham_ptn_qua_camera(dic_dap_an)
