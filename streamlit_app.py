@@ -400,8 +400,9 @@ def Cham_ptn_qua_camera(dic_dap_an):
         # To read image file buffer with OpenCV:
         bytes_data = img_file_buffer.getvalue()
         cv2_img = cv2.imdecode(np.frombuffer(bytes_data, np.uint8), cv2.IMREAD_COLOR)
-        Cham_ptn_vanhien_hv(cv2_img, dic_dap_an)
-
+        paper, ket_qua_thi = Cham_ptn_vanhien_hv(cv2_img, dic_dap_an)
+        st.image(paper)
+        st.write(ket_qua_thi)
 ###############################
 
 def lay_dic_dap_an(dic_dap_an, ch_da,  tenfda_dang_dung):
