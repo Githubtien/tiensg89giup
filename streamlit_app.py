@@ -592,7 +592,7 @@ def Cham_ptn_vanhien_hv(image, dic_dap_an):
         #print(listdosanginABCD.count(1))
         #print(listdosanginABCD.count(3))
         #if (sochidosang == 1 and listdosanginABCD.count(1) == 1 and listdosanginABCD.count(3) == 0) or (sochidosang == 3 and listdosanginABCD.count(3) == 1 and listdosanginABCD.count(1) == 0):
-        if (listdosanginABCD.count(1) == 1 and listdosanginABCD.count(3) == 0) or (listdosanginABCD.count(3) == 1 and listdosanginABCD.count(1) == 0):
+        if (listdosanginABCD.count(1) == 1 and listdosanginABCD.count(3) == 0 and str(sochidosang) in "1 3") or (listdosanginABCD.count(3) == 1 and listdosanginABCD.count(1) == 0 and str(sochidosang) in "1 3"):
             cv2.rectangle(paper, (xb,yb),(xb+wb,yb+hb),(0,255,0),3)
             #cv2.circle(paper,(xb+round(wb/2),yb+round(hb/2)),round(wb/2)-2,(0,255,0),4) # GREEN
             so_cau_dung=so_cau_dung+1
