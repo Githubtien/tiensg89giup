@@ -510,7 +510,7 @@ def Cham_ptn_vanhien_hv(image, dic_dap_an):
     for i, cnt in enumerate(cnts_200bubs_sxep_inpaper):
         x,y,w,h = cv2.boundingRect(cnt)
         anh = thresh[y+bdaycat:y+h-2*bdaycat, x+bdaycat:x+w-2*bdaycat]
-        #anh = cv2.resize(anh, (28, 28), cv2.INTER_AREA)
+        anh = cv2.resize(anh, (28, 28), cv2.INTER_AREA)
         #anh = anh.reshape((28, 28, 1))
         #print(anh)
         #print(anh.shape)
