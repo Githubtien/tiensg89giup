@@ -614,7 +614,7 @@ def Cham_ptn_vanhien_hv(image, dic_dap_an):
         ket_qua_thi = 'Diem : '+str(diem)+' (Ti le cau dung: '+str(so_cau_dung)+'/'+str(len(caus_voi_dosang_ofABCD))+')'
     else:
             
-        exit(print('Sorry! So cau hoi = ',len(caus_voi_dosang_ofABCD)))
+        exit()
 
     # Ghi ket qua vao Phieu
     #paper=cv2.resize(paper,(2026,1325) )
