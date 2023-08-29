@@ -17,6 +17,13 @@ global dic_dap_an,mau_phieu_chon
 dic_dap_an={}
 mau_phieu_chon=''
 ##########################
+def brow_img(image,namewin):
+    cv2.namedWindow(namewin, cv2.WINDOW_NORMAL) 
+    cv2.imshow(namewin, image)
+    cv2.waitKey()
+    cv2.destroyAllWindows()
+    return
+
 def order_points(pts):
 	rect = np.zeros((4, 2), dtype = "float32")
 	s = pts.sum(axis = 1)
@@ -61,7 +68,7 @@ def Chon_mau_phieu():
     listd = os.listdir('mau_phieu')
     ltep=[]
     for tep in listd:
-        print(tep)
+        #print(tep)
         #if 'PTN_' in tep:
         ltep.append(tep)
 
@@ -120,7 +127,10 @@ def Cung_cap_da():
             arrImg = np.array(pilImg_goc_da)
             cv2Img = cv2.cvtColor(arrImg, cv2.COLOR_RGB2BGR)    #mang numpyarray nhung doi sang he mau cua cv2
             cv2Img = cv2.rotate(cv2Img, cv2.ROTATE_90_CLOCKWISE)
-            dic_dap_an = Cham_ptn_vanhien_da(cv2Img)
+            
+            #brow_img(cv2Img,'cv2Img')
+
+            dic_dap_an, ch_da = Cham_ptn_vanhien_da(cv2Img)
 
             if dic_dap_an != {}:
                 ch_da = ''
@@ -130,7 +140,7 @@ def Cung_cap_da():
                     else:    
                         ch_da = ch_da + str(keyd+1) + dic_dap_an[keyd]
                 #st.write(ch_dap_an)
-                tepluub = get_ten_file()
+                tepluub = "dap_an/" + get_ten_file()
                 #tepluub = tepluub.replace('.jpg','dap_an_'+made+'.pkl')
                 with open(tepluub, 'wb') as fwb:
                     ldap_an=[dic_dap_an,ch_da]
@@ -197,7 +207,7 @@ def Scanhoa_from_4dinh_of4kv_mark(img,cnts_4KV_top, cnts_4KV_bot):
     paper = four_point_transform(img, pts)
     return paper
 
-def Cham_ptn_vanhien_da(image, dic_dap_an): # image la cua cv2, dic_dap_an ={}
+def Cham_ptn_vanhien_da(image): # image la cua cv2, dic_dap_an ={}
     dic_dap_an={}
     cnts_4KV_top, cnts_4KV_bot = Find_4kv_Black_Big_Top_Bot(image)
     paper = Scanhoa_from_4dinh_of4kv_mark(image,cnts_4KV_top, cnts_4KV_bot)
@@ -274,8 +284,8 @@ def Cham_ptn_vanhien_da(image, dic_dap_an): # image la cua cv2, dic_dap_an ={}
             clas='1'
         else:
             clas='0'
-        if os.path.isdir("Datasets/TAM"):
-            tenf=str((i//4)+1)+'_'+str(i%4)+'_'+str(total)+'_'+clas+'.png'
+        #if os.path.isdir("Datasets/TAM"):
+        #    tenf=str((i//4)+1)+'_'+str(i%4)+'_'+str(total)+'_'+clas+'.png'
             #Save_anh(anh,tenf,tmuc='D:/Deep_learning_030823/Datasets/TAM')
         if total >= dosang_max:
             dosang_max = total
@@ -322,20 +332,20 @@ def Cham_ptn_vanhien_da(image, dic_dap_an): # image la cua cv2, dic_dap_an ={}
             kt_dap='K'
             exit('PTN DAP AN CO LOI!')
         dic_dap_an[ic] = kt_dap
-    ch_dap_an = ''
+    ch_da = ''
     for keyd in dic_dap_an:
         if  keyd < len(dic_dap_an) - 1 :  
-            ch_dap_an = ch_dap_an + str(keyd+1) + dic_dap_an[keyd] + ', '
+            ch_da = ch_da + str(keyd+1) + dic_dap_an[keyd] + ', '
         else:    
-            ch_dap_an = ch_dap_an + str(keyd+1) + dic_dap_an[keyd]
-    st.write(ch_dap_an)
+            ch_da = ch_da + str(keyd+1) + dic_dap_an[keyd]
+    st.write(ch_da)
     tepluub = get_ten_file()
     tepluub = tepluub.replace('.jpg','dap_an_.pkl')
     with open(tepluub, 'wb') as fwb:
-        ldap_an=[dic_dap_an,ch_dap_an]
+        ldap_an=[dic_dap_an,ch_da]
         pickle.dump(ldap_an, fwb)
         st.write('Đã lưu đáp án!')    
-    return dic_dap_an, ch_dap_an
+    return dic_dap_an, ch_da
 
 def get_ten_file():
     masoda_da_nhap = st.text_input('Nhập mã số của đáp án với 3 kí tự số : ', '   ', max_chars=3)
@@ -499,8 +509,8 @@ def Cham_ptn_vanhien_hv(image, dic_dap_an):
     for i, cnt in enumerate(cnts_200bubs_sxep_inpaper):
         x,y,w,h = cv2.boundingRect(cnt)
         anh = thresh[y+bdaycat:y+h-2*bdaycat, x+bdaycat:x+w-2*bdaycat]
-        #anh = cv2.resize(anh, (28, 28), cv2.INTER_AREA)
-        #anh = anh.reshape((28, 28, 1))
+        anh = cv2.resize(anh, (28, 28), cv2.INTER_AREA)
+        anh = anh.reshape((28, 28, 1))
         #print(anh)
         #print(anh.shape)
         #anh = anh//255  # chia lay phan nguyen
@@ -585,7 +595,7 @@ def Cham_ptn_vanhien_hv(image, dic_dap_an):
             cv2.rectangle(paper, (xb,yb),(xb+wb,yb+hb),(0,255,0),3)
             #cv2.circle(paper,(xb+round(wb/2),yb+round(hb/2)),round(wb/2)-2,(0,255,0),4) # GREEN
             so_cau_dung=so_cau_dung+1
-            print(listdosanginABCD)
+            #print(listdosanginABCD)
 
         elif (listdosanginABCD.count(1) > 1 or listdosanginABCD.count(3) > 1) or (listdosanginABCD.count(1) == 1 and listdosanginABCD.count(3) == 1):
             cv2.rectangle(paper, (xb,yb),(xb+wb,yb+hb),(225,0,225),3)
@@ -603,8 +613,8 @@ def Cham_ptn_vanhien_hv(image, dic_dap_an):
         diem = float("{:.2f}".format(10*so_cau_dung/len(caus_voi_dosang_ofABCD)))
         ket_qua_thi = 'Diem : '+str(diem)+' (Ti le cau dung: '+str(so_cau_dung)+'/'+str(len(caus_voi_dosang_ofABCD))+')'
     else:
-        print('Sorry! So cau hoi = ',len(caus_voi_dosang_ofABCD))    
-        exit()
+            
+        exit(print('Sorry! So cau hoi = ',len(caus_voi_dosang_ofABCD)))
 
     # Ghi ket qua vao Phieu
     #paper=cv2.resize(paper,(2026,1325) )
