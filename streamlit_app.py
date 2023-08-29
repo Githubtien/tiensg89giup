@@ -597,9 +597,11 @@ def Cham_ptn_vanhien_hv(image, dic_dap_an):
             #cv2.circle(paper,(xb+round(wb/2),yb+round(hb/2)),round(wb/2)-2,(0,255,0),4) # GREEN
             so_cau_dung=so_cau_dung+1
             #print(listdosanginABCD)
+        elif str(sochidosang) in "1 3" and (listdosanginABCD.count(1) + listdosanginABCD.count(3) > 1):
+            cv2.rectangle(paper, (xb,yb),(xb+wb,yb+hb),(225,0,225),3) # PINK
 
-        elif (listdosanginABCD.count(1) > 1 or listdosanginABCD.count(3) > 1) or (listdosanginABCD.count(1) == 1 and listdosanginABCD.count(3) == 1):
-            cv2.rectangle(paper, (xb,yb),(xb+wb,yb+hb),(225,0,225),3)
+        #elif (listdosanginABCD.count(1) > 1 or listdosanginABCD.count(3) > 1) or (listdosanginABCD.count(1) == 1 and listdosanginABCD.count(3) == 1):
+        #    cv2.rectangle(paper, (xb,yb),(xb+wb,yb+hb),(225,0,225),3)
             #cv2.circle(paper,(xb+round(wb/2),yb+round(hb/2)),round(wb/2)-2,(255,0,255),4) # PINK
         else:
             cv2.rectangle(paper, (xb,yb),(xb+wb,yb+hb),(0,0,255),3)
