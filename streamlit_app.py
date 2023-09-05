@@ -698,7 +698,7 @@ def Upload_fileimg_ptn():
 # main()
 
 
-st.title("Chấm Phiếu Trắc Nghiệm auto online")
+st.title("Chấm thi auto online trên Phiếu trả lời trắc nghiệm :iphone:")
 if st.checkbox('**:red[Bước 1 : Chọn mẫu phiếu]**'):
     mau_phieu_chon = Chon_mau_phieu()
     st.write('Mẫu phiếu đã chọn là : '+mau_phieu_chon)
