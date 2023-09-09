@@ -16,8 +16,20 @@ import imutils
 from cham_ptn_001_40 import cham_ptn_001_40
 from cham_ptn_999_120 import cham_ptn_999_120
 from cham_ptn_006_40 import cham_ptn_006_40
+from cham_ptn_008_40 import cham_ptn_008_40
 
 from funcs_cham_ptn import brow_img
+
+def get_ten_file_time():
+    from datetime import datetime
+    # datetime object containing current date and time
+    now = datetime.now()
+    # dd/mm/YY H:M:S
+    dt_string = now.strftime("%Y/%m/%d %H:%M:%S")
+    ch=dt_string.replace('/','_')
+    ch=ch.replace(' ','_')
+    ch=ch.replace(':','')
+    return ch
 
 def rut_chda_fromdic(dic_dap_an):
     if dic_dap_an != {}:
@@ -96,7 +108,7 @@ def Cung_cap_da():
             
             #brow_img(cv2Img,'cv2Img')
 
-            dic_dap_an, ch_da = Cham_ptn_vanhien_da(cv2Img)
+            #dic_dap_an, ch_da = Cham_ptn_vanhien_da(cv2Img)
 
             if dic_dap_an != {}:
                 ch_da = ''
@@ -106,7 +118,7 @@ def Cung_cap_da():
                     else:    
                         ch_da = ch_da + str(keyd+1) + dic_dap_an[keyd]
                 #st.write(ch_dap_an)
-                tepluub = "dap_an/" + get_ten_file()
+                tepluub = "dap_an/" + get_ten_file_time()
                 #tepluub = tepluub.replace('.jpg','dap_an_'+made+'.pkl')
                 with open(tepluub, 'wb') as fwb:
                     ldap_an=[dic_dap_an,ch_da]
@@ -118,19 +130,6 @@ def Cung_cap_da():
     return dic_dap_an
     
 
-def Cham_ptn_qua_camera(dic_dap_an):
-    if dic_dap_an == {}:
-        return st.write('Không thể làm việc vì chưa cung cấp đáp án!')    
-
-    img_file_buffer = st.camera_input("Chụp Phiếu Trắc Nghiệm (nhấp vào Take Photo) sao cho có 4 khối đen trong PTN ở 4 góc ảnh",key='CPTNQC')
-
-    if img_file_buffer is not None:
-        # To read image file buffer with OpenCV:
-        bytes_data = img_file_buffer.getvalue()
-        cv2_img = cv2.imdecode(np.frombuffer(bytes_data, np.uint8), cv2.IMREAD_COLOR)
-        paper, ket_qua_thi = Cham_ptn_vanhien_hv(cv2_img, dic_dap_an)
-        st.image(paper)
-        st.write(ket_qua_thi)
 ###############################
 
 def lay_dic_dap_an(dic_dap_an, ch_da,  tenfda_dang_dung):
@@ -153,61 +152,6 @@ def lay_dic_dap_an(dic_dap_an, ch_da,  tenfda_dang_dung):
     st.write(tenfda_dang_dung)
     return dic_dap_an,ch_da,tenfda_dang_dung
 
-def Upload_fileimg_ptn(dic_dap_an):
-    if len(dic_dap_an) == 0:
-        return '', None    
-    image_file = st.file_uploader(":green[Chọn 1 file ảnh Phiếu Trăc Nghiệm để tải lên.]",type=("png", "jpg"), key=4)
-
-    if image_file is not None:
-        #st.write(image_file.name + ' đã được tải lên')
-
-        pilImg_goc = Image.open(image_file)
-        arrImg = np.array(pilImg_goc)
-        cv2Img = cv2.cvtColor(arrImg, cv2.COLOR_RGB2BGR)    #mang numpyarray nhung doi sang he mau cua cv2
-        cv2Img = cv2.rotate(cv2Img, cv2.ROTATE_90_CLOCKWISE)
-        st.image(cv2Img)
-        #paper = Lay_4kvtheoy_scanhoa(cv2Img)
-
-        lthongtin = '_001_40'
-        return lthongtin, paper
-        '''
-        #paper_pre = Cham_ptn_vanhien_hv(cv2Img, dic_dap_an)
-        
-        st.write("Chấm xong. Dưới đây là ảnh PTN đã chấm:")
-
-        img = cv2.cvtColor(paper, cv2.COLOR_BGR2RGB)
-        im_pil = Image.fromarray(img)
-
-        # For reversing the operation:
-        pil_im_pil = np.asarray(im_pil)
-
-        #dung ham exif_transpose(imggocinPil) cua modul ImageOps in PIL de xoay lai anh trong st.image
-        pil_im_pil = ImageOps.exif_transpose(im_pil)
-
-        st.image(pil_im_pil, caption='Phiếu trắc nghiệm đã được chấm!')
-
-        st.write(":red["+ket_qua_thi+"]")
-
-        from datetime import datetime
-        now = datetime.now()
-        dt_string = now.strftime("%Y/%m/%d %H:%M:%S")
-        ch=dt_string.replace('/','_')
-        ch=ch.replace(' ','_')
-        ch=ch.replace(':','')
-        str_tep = ch +'.jpg'
-
-        from io import BytesIO
-        buf = BytesIO()
-        pil_im_pil.save(buf, format="JPEG") # pil_im_pil la np.aray trong PIL cua anh tren
-        byte_im = buf.getvalue()
-        #use the st.download_button
-        btn = st.download_button(
-            label = ":blue[Download Phiếu trắc nghiệm với kết quả vừa được chấm!]",
-            data = byte_im,
-            file_name = str_tep,
-            mime="image/jpeg",
-            )
-        '''
 ################################################################################################
 # main()
 
@@ -251,6 +195,11 @@ if st.checkbox(':beginner:**:red[Bước 3 : Upload file image PTN trong máy l�
             st.image(img_pil, caption='Phiếu trắc nghiệm đã được chấm!')
         elif mau_phieu_chon[4:-4]=='006_40':
             paper = cham_ptn_006_40(cv2Img,dic_dap_an)  #chay trong cv2 voi image cv2
+            img = cv2.cvtColor(paper, cv2.COLOR_BGR2RGB)    #dung cv2 doi sang he mau PIL
+            img_pil = Image.fromarray(img)      # chuyen sang anh PIL
+            st.image(img_pil, caption='Phiếu trắc nghiệm đã được chấm!')
+        elif mau_phieu_chon[4:-4]=='008_40':
+            paper = cham_ptn_008_40(cv2Img,dic_dap_an)  #chay trong cv2 voi image cv2
             img = cv2.cvtColor(paper, cv2.COLOR_BGR2RGB)    #dung cv2 doi sang he mau PIL
             img_pil = Image.fromarray(img)      # chuyen sang anh PIL
             st.image(img_pil, caption='Phiếu trắc nghiệm đã được chấm!')
