@@ -137,7 +137,7 @@ def Lay_somade_tu30bsx(cnts_30bsx_toadocu,paper):
         anh_hcnbao_cnt=gray[y:y+h,x:x+w]
         anh_hcnbao_cnt=Xen_xquanh_anh(anh_hcnbao_cnt,beday=2)
         #brow_img(anh_hcnbao_cnt,'XXX')
-        means.append(int(np.mean(anh_hcnbao_cnt)))
+        means.append(np.mean(anh_hcnbao_cnt))
         if len(means)==10:
             min_arg=np.argmin(means)
             min_val=means[min_arg]
@@ -160,7 +160,7 @@ def Lay_sobd_tu60bsx(cnts_60bsx_toadocu,paper):
         anh_hcnbao_cnt=gray[y:y+h,x:x+w]
         anh_hcnbao_cnt=Xen_xquanh_anh(anh_hcnbao_cnt,beday=2)
         #brow_img(anh_hcnbao_cnt,'XXX')
-        means.append(int(np.mean(anh_hcnbao_cnt)))
+        means.append(np.mean(anh_hcnbao_cnt))
         if len(means)==10:
             min_arg=np.argmin(means)
             min_val=means[min_arg]
@@ -192,7 +192,7 @@ def cham_ptn_008_40(image,dic_dap_an):
     cnts = Find_cnts_voi_kieuN(anh_phan_tn,kieuN=0)
     cnts = sorted(cnts, key=cv2.contourArea, reverse=True)
     if len(cnts) < 250:
-        exit(print('Khong du so bubs'))
+        exit('Khong du so bubs')
 
     cnt_bubs=[]
     for c in cnts:
@@ -223,7 +223,7 @@ def cham_ptn_008_40(image,dic_dap_an):
         cnts_30bsx_toadocu.append(c+np.array([xM+4,yM+4]))
 
     str_somd = Lay_somade_tu30bsx(cnts_30bsx_toadocu,paper)
-    print(str_somd)
+    #print(str_somd)
     ###############
 
     # lay cac cnts baodanh sx lai roi gui ham Lay_sobd_tu60bsx rut ra bd
@@ -240,7 +240,7 @@ def cham_ptn_008_40(image,dic_dap_an):
         cnts_60bsx_toadocu.append(c+np.array([xM+4,yM+4]))
 
     str_sobd = Lay_sobd_tu60bsx(cnts_60bsx_toadocu,paper)
-    print(str_sobd)
+    #print(str_sobd)
     ##############
 
     cnt_bubs_tn_sx=[]
@@ -255,7 +255,7 @@ def cham_ptn_008_40(image,dic_dap_an):
             for cc in dong_cau:
                 dong_cau_toadocu.append(cc+np.array([xM+4,yM+4])) 
             cnt_bubs_tn_sx = cnt_bubs_tn_sx + dong_cau_toadocu
-    print(len(cnt_bubs_tn_sx))
+    #print(len(cnt_bubs_tn_sx))
     #for c in cnt_bubs_tn_sx:
     #    cv2.drawContours(paper, [c], 0, (0,0,255), 4)
     #    brow_img(paper,'XXX')
@@ -277,7 +277,7 @@ def cham_ptn_008_40(image,dic_dap_an):
         (x, y, w, h) = cv2.boundingRect(c)
         anh = warped[y:y+h, x:x+w]
         #print(np.mean(anh))
-        means.append(int(np.mean(anh)))
+        means.append(np.mean(anh))
         idx_answ = i % 4
         cau=int(i/4)
         #find image means of the answer bubbles
@@ -344,5 +344,6 @@ def cham_ptn_008_40(image,dic_dap_an):
 #    exit('Khong co tep : '+tep)
 
 #image=cv2.imread(tep)
-#dic_dap_an#
+#dic_dap_an = Tao_dicdapan_random(40)
+#paper = cham_ptn_008_40(image,dic_dap_an)
 #brow_img(paper,'KQCC:')
