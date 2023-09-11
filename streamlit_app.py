@@ -175,34 +175,28 @@ if st.checkbox(':banjo:**:red[Bước 2 : Cung cấp đáp án]**') and chonmaup
 uploadfile=-1
 if st.checkbox(':beginner:**:red[Bước 3 : Upload file image PTN trong máy lên, sau đó auto chấm rồi trả về kết quả.]**') and chonmauphieu == 1 and cungcapdapan==1 and canhbao != 1:
     uploadfile=1
-    image_file = st.file_uploader(":green[Chọn 1 file ảnh Phiếu Trăc Nghiệm để tải lên.]",type=("png", "jpg"), key=4)
+    uploaded_file  = st.file_uploader(":green[Chọn 1 file ảnh Phiếu Trăc Nghiệm để tải lên.]",type=("png", "jpg"), key=4)
 
-    if image_file is not None:
+    if uploaded_file  is not None:
         #st.write(image_file.name + ' đã được tải lên')
         #st.write(dic_dap_an)
-        pilImg_goc = Image.open(image_file)
-        arrImg = np.array(pilImg_goc)
-        cv2Img = cv2.cvtColor(arrImg, cv2.COLOR_RGB2BGR)    #mang numpyarray nhung doi sang he mau cua cv2
+        # Convert the file to an opencv image.
+        file_bytes = np.asarray(bytearray(uploaded_file.read()), dtype=np.uint8)
+        opencv_image = cv2.imdecode(file_bytes, 1)
+
         if mau_phieu_chon[4:-4]=='001_40':
-            paper = cham_ptn_001_40(cv2Img,dic_dap_an)  #chay trong cv2 voi image cv2
-            img = cv2.cvtColor(paper, cv2.COLOR_BGR2RGB)    #dung cv2 doi sang he mau PIL
-            img_pil = Image.fromarray(img)      # chuyen sang anh PIL
-            st.image(img_pil, caption='Phiếu trắc nghiệm đã được chấm!')
+            paper = cham_ptn_001_40(opencv_image,dic_dap_an)  #chay trong cv2 voi image cv2
+            st.image(paper, channels="BGR", caption='Phiếu trắc nghiệm đã được chấm!')
+
         elif mau_phieu_chon[4:-4]=='999_120':
-            paper = cham_ptn_999_120(cv2Img,dic_dap_an)  #chay trong cv2 voi image cv2
-            img = cv2.cvtColor(paper, cv2.COLOR_BGR2RGB)    #dung cv2 doi sang he mau PIL
-            img_pil = Image.fromarray(img)      # chuyen sang anh PIL
-            st.image(img_pil, caption='Phiếu trắc nghiệm đã được chấm!')
+            paper = cham_ptn_999_120(opencv_image,dic_dap_an)  #chay trong cv2 voi image cv2
+            st.image(paper, channels="BGR", caption='Phiếu trắc nghiệm đã được chấm!')
         elif mau_phieu_chon[4:-4]=='006_40':
-            paper = cham_ptn_006_40(cv2Img,dic_dap_an)  #chay trong cv2 voi image cv2
-            img = cv2.cvtColor(paper, cv2.COLOR_BGR2RGB)    #dung cv2 doi sang he mau PIL
-            img_pil = Image.fromarray(img)      # chuyen sang anh PIL
-            st.image(img_pil, caption='Phiếu trắc nghiệm đã được chấm!')
+            paper = cham_ptn_006_40(opencv_image,dic_dap_an)  #chay trong cv2 voi image cv2
+            st.image(paper, channels="BGR", caption='Phiếu trắc nghiệm đã được chấm!')
         elif mau_phieu_chon[4:-4]=='008_40':
-            paper = cham_ptn_008_40(cv2Img,dic_dap_an)  #chay trong cv2 voi image cv2
-            img = cv2.cvtColor(paper, cv2.COLOR_BGR2RGB)    #dung cv2 doi sang he mau PIL
-            img_pil = Image.fromarray(img)      # chuyen sang anh PIL
-            st.image(img_pil, caption='Phiếu trắc nghiệm đã được chấm!')
+            paper = cham_ptn_008_40(opencv_image,dic_dap_an)  #chay trong cv2 voi image cv2
+            st.image(paper, channels="BGR", caption='Phiếu trắc nghiệm đã được chấm!')
     
     #if '000_120' in lthongtin:
     #    from cham_ptn_000_120 import cham_ptn_000_120

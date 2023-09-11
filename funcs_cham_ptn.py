@@ -142,7 +142,7 @@ def Xu_li_bub_tinh_diem_thi(All_cnts_bub_in_paper, paper,dic_dap_an):
             # neu answer_choices[min_arg] = A thi ung voi cnt: cau*4 + i % 4 
             if answer_choices[min_arg] == dic_dap_an[cau]:
                 xb,yb,wb,hb = cv2.boundingRect(All_cnts_bub_in_paper[cau*4 + min_arg])
-                cv2.circle(paper,(xb+round(wb/2),yb+round(hb/2)),round(wb/2),(0,255,0),2) # GREEN #bk cong them 2 cho ro
+                cv2.circle(paper,(xb+round(wb/2),yb+round(hb/2)),round(wb/2),(0,255,0),4) # GREEN #bk cong them 2 cho ro
                 so_cau_dung = so_cau_dung+1
                 #brow_img(paper,'paper')
             else:
@@ -151,13 +151,13 @@ def Xu_li_bub_tinh_diem_thi(All_cnts_bub_in_paper, paper,dic_dap_an):
                     kitu = dic_dap_an[cau]	# A hoac B hoac C hoac D
                     idx = answer_choices.index(kitu)
                     xb,yb,wb,hb = cv2.boundingRect(All_cnts_bub_in_paper[cau*4 + idx])
-                    cv2.circle(paper,(xb+round(wb/2),yb+round(hb/2)),round(wb/2),(225,0,225),2) # PRINK
+                    cv2.circle(paper,(xb+round(wb/2),yb+round(hb/2)),round(wb/2),(225,0,225),4) # PRINK
                 #	brow_img(paper,'paper'))
                 else:
                     kitu = dic_dap_an[cau]	# A hoac B hoac C hoac D
                     idx = answer_choices.index(kitu)
                     xb,yb,wb,hb = cv2.boundingRect(All_cnts_bub_in_paper[cau*4 + idx])
-                    cv2.circle(paper,(xb+round(wb/2),yb+round(hb/2)),round(wb/2),(0,0,255),3) # RED
+                    cv2.circle(paper,(xb+round(wb/2),yb+round(hb/2)),round(wb/2),(0,0,255),4) # RED
                 #	brow_img(paper,'paper')
             means = []
     #ket_qua_thi='pppppp'

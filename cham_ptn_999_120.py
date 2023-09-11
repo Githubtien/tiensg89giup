@@ -1,6 +1,7 @@
 import numpy as np
 import cv2
 import imutils
+import os.path
 #from funcs_cham_ptn import Lay_so_bao_danh
 from funcs_cham_ptn import Xen_xquanh_anh
 from funcs_cham_ptn import get_x_ver0
@@ -60,13 +61,14 @@ def Lay_so_bao_danh(paper):
             min_val=means[min_arg]
             means[min_arg]=255
             min_val2=means[np.argmin(means)]
-            if min_val - min_val2 < 10: 
+            #print(min_val2-min_val)
+            if min_val2 - min_val < 10: 
                 kitulay='?'
             else:
                 kitulay=str(min_arg)
             str_sobd=str_sobd+kitulay
             means=[]
-    print(str_sobd)
+    #print(str_sobd)
     return str_sobd            
 
 def Lay_so_ma_de(paper):
@@ -115,19 +117,20 @@ def Lay_so_ma_de(paper):
         anh_hcnbao_cnt=gray[y:y+h,x:x+w]
         anh_hcnbao_cnt=Xen_xquanh_anh(anh_hcnbao_cnt,beday=2)
         #brow_img(anh_hcnbao_cnt,'XXX')
+        #print(int(np.mean(anh_hcnbao_cnt)))
         means.append(int(np.mean(anh_hcnbao_cnt)))
         if len(means)==10:
             min_arg=np.argmin(means)
             min_val=means[min_arg]
             means[min_arg]=255
             min_val2=means[np.argmin(means)]
-            if min_val - min_val2 < 10: 
+            if min_val2 - min_val < 10: 
                 kitulay='?'
             else:
                 kitulay=str(min_arg)
             str_somd=str_somd+kitulay
             means=[]
-    print(str_somd)
+    #print(str_somd)
     return str_somd            
 
 def Sap_xeptt_allbubs(cnts_bubs,so_khoi,so_bub_moi_khoi,so_cau_moi_khoi,so_bub_moi_cau):
@@ -138,10 +141,6 @@ def Sap_xeptt_allbubs(cnts_bubs,so_khoi,so_bub_moi_khoi,so_cau_moi_khoi,so_bub_m
         for jC in range(so_cau_moi_khoi):
             dong_4bubs = khoi_120bubs[(jC%so_cau_moi_khoi)*so_bub_moi_cau :(jC%so_cau_moi_khoi)*so_bub_moi_cau + so_bub_moi_cau]
             dong_4bubs = sorted(dong_4bubs, key=get_x_ver0)
-            #dong_4bubs_toadocu=[]
-            #for cc in dong_4bubs:
-            #    dong_4bubs_toadocu.append(cc+np.array([xM+4,yM+4])) 
-            #cnts_all_bubs_sx = cnts_all_bubs_sx + dong_4bubs_toadocu
             cnts_all_bubs_sx = cnts_all_bubs_sx + dong_4bubs
     return cnts_all_bubs_sx
 
@@ -158,9 +157,17 @@ def Scan_hoa_theo_hcn_baocnt(image,cnt_x):
 def cham_ptn_999_120(image,dic_dap_an):
     # Bo ria lay hcn lon nhat chua noi dung
     cnts = Find_cnts_voi_kieuN(image,kieuN=0)
+    cnts=sorted(cnts,key=cv2.contourArea,reverse=True)
+
+    #cv2.drawContours(image, [cnts[0]], 0, (0,0,255), 4)
+    #brow_img(image,'xxxx')
+    #cv2.drawContours(anh_khoi_bd, cnts_kvlay[:60], -1, (0,0,255), 4)
+
     cnt_x = cnts[0] #cnt_x la cnt hcn bao boc noi dung ,bo ria
+
     paper = Scan_hoa_theo_hcn_baocnt(image,cnt_x)
-    paper = Xen_xquanh_anh(paper,beday=2)
+    paper = Xen_xquanh_anh(paper,beday=40)
+    #brow_img(paper,'xxxx')
 
     # Lay so bao danh
     str_sobd = Lay_so_bao_danh(paper)
@@ -174,8 +181,9 @@ def cham_ptn_999_120(image,dic_dap_an):
     cnts = Find_cnts_voi_kieuN(paper,kieuN=0)
     cnts = sorted(cnts,key=cv2.contourArea, reverse=True)
     xM,yM,wM,hM =cv2.boundingRect(cnts[0])  # cnt co dt max la phan trac nghiem
+    
     anh_phan_tn = paper[yM:yM+hM,xM:xM+wM] 
-    anh_phan_tn = Xen_xquanh_anh(anh_phan_tn,beday=4)
+    anh_phan_tn = Xen_xquanh_anh(anh_phan_tn,beday=20)
 
     # Lay cac cnt bubs 
     cnts = Find_cnts_voi_kieuN(anh_phan_tn,kieuN=0)
@@ -184,9 +192,12 @@ def cham_ptn_999_120(image,dic_dap_an):
     for cnt in cnts:
         x1,y1,w1,h1 = cv2.boundingRect(cnt)
         approx = cv2.approxPolyDP(cnt, 0.03 * cv2.arcLength(cnt, True), True)
-        if (0.8 <= float(w1/h1) <= 1.2) and len(approx) != 4: #and (30 <= cv2.contourArea(cnt)):
+        if (0.8 <= float(w1/h1) <= 1.2) and len(approx) > 4 and w1 >= 50: #and (30 <= cv2.contourArea(cnt)):
             cnt_bubs.append(cnt)
+            #print(w1)
             #cv2.drawContours(anh_phan_tn, [cnt], 0, (0,0,255), 4)
+    #brow_img(anh_phan_tn,'xxxx')
+
     #print(len(cnt_bubs))
     if len(cnt_bubs) != 480:
         exit('PTN khong dat chuan!')
@@ -197,7 +208,7 @@ def cham_ptn_999_120(image,dic_dap_an):
     # dem ve toadocu
     cnts_all_bubs_sx_inpaper=[]
     for cc in cnts_all_bubs_sx:
-        cnts_all_bubs_sx_inpaper.append(cc+np.array([xM+4,yM+4])) 
+        cnts_all_bubs_sx_inpaper.append(cc+np.array([xM+20,yM+20])) 
 
     # Xu li bubs tinh diem thi
     #dic_dap_an = Tao_dicdapan_random(120)
@@ -225,11 +236,16 @@ def cham_ptn_999_120(image,dic_dap_an):
     cv2.putText(paper, str(lkqthi[0]), (50,960), 0, fontScale, color2, thickness, cv2.LINE_AA)
 
     cv2.imwrite(str_sobd.replace('?','X')+'_'+str_somd.replace('?','0')+".jpg",paper)
-    print(lkqthi)
+    #print(lkqthi)
     return paper
 
 #############################
-#image=cv2.imread("PTN_999_120.JPG")
+#tep="PTN_HS/ptn-hs-001.JPG"
+#if not os.path.exists(tep):
+#    exit('Khong co tep : '+tep)
+
+#image=cv2.imread(tep)
+
 #dic_dap_an = Tao_dicdapan_random(socau=120)
 #paper = cham_ptn_999_120(image,dic_dap_an)
 #brow_img(paper, 'XXXXXX')
