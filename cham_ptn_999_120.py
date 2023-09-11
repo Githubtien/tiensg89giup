@@ -6,7 +6,7 @@ import os.path
 from funcs_cham_ptn import Xen_xquanh_anh
 from funcs_cham_ptn import get_x_ver0
 from funcs_cham_ptn import get_y_ver1
-from funcs_cham_ptn import Xu_li_bub_tinh_diem_thi
+#from funcs_cham_ptn import Xu_li_bub_tinh_diem_thi
 from funcs_cham_ptn import Tao_dicdapan_random
 from funcs_cham_ptn import brow_img
 from funcs_cham_ptn import Find_cnts_voi_kieuN
@@ -154,6 +154,72 @@ def Scan_hoa_theo_hcn_baocnt(image,cnt_x):
     paper = four_point_transform(image, pts)
     return paper
 
+def Xu_li_bub_tinh_diem_thi(All_cnts_bub_in_paper, paper,dic_dap_an):
+    answer_choices = ['A', 'B', 'C', 'D', '?'] 
+    test_sensitivity_epsilon=10
+    questions_answer=[]
+
+    warped = cv2.cvtColor(paper, cv2.COLOR_BGR2GRAY)
+    means=[]
+    cau=0
+    so_cau_dung=0
+    for i,c in enumerate(All_cnts_bub_in_paper):
+        (x, y, w, h) = cv2.boundingRect(c)
+        anh = warped[y:y+h, x:x+w]
+        #print(np.mean(anh))
+        means.append(int(np.mean(anh)))
+        idx_answ = i % 4
+        cau=int(i/4)
+        #find image means of the answer bubbles
+        if len(means)==4 :
+            #print(str(cau)+':',means)
+            #brow_img(warped,'warped')
+            #sort by minimum mean; sort by the darkest bubble
+            min_arg = np.argmin(means)
+            min_val = means[min_arg]
+            #find the second smallest mean
+            means[min_arg] = 255
+            min_val2 = means[np.argmin(means)]
+            #check if the two smallest values are close in value
+            if min_val2 - min_val < test_sensitivity_epsilon:
+                #if so, then the question has been double bubbled and is invalid
+                min_arg = 4
+            #append the answers to the array
+            questions_answer.append(answer_choices[min_arg])
+            # To mau cnt
+            # neu answer_choices[min_arg] = A thi ung voi cnt: cau*4 + i % 4 
+            if answer_choices[min_arg] == dic_dap_an[cau]:
+                xb,yb,wb,hb = cv2.boundingRect(All_cnts_bub_in_paper[cau*4 + min_arg])
+                cv2.circle(paper,(xb+round(wb/2),yb+round(hb/2)),round(wb/2),(0,255,0),4) # GREEN #bk cong them 2 cho ro
+                so_cau_dung = so_cau_dung+1
+                #brow_img(paper,'paper')
+            else:
+                if answer_choices[min_arg]=='?':
+                    # Lay idx cua dap an cau nay
+                    kitu = dic_dap_an[cau]	# A hoac B hoac C hoac D
+                    idx = answer_choices.index(kitu)
+                    xb,yb,wb,hb = cv2.boundingRect(All_cnts_bub_in_paper[cau*4 + idx])
+                    cv2.circle(paper,(xb+round(wb/2),yb+round(hb/2)),round(wb/2),(225,0,225),4) # PRINK
+                #	brow_img(paper,'paper'))
+                else:
+                    kitu = dic_dap_an[cau]	# A hoac B hoac C hoac D
+                    idx = answer_choices.index(kitu)
+                    xb,yb,wb,hb = cv2.boundingRect(All_cnts_bub_in_paper[cau*4 + idx])
+                    cv2.circle(paper,(xb+round(wb/2),yb+round(hb/2)),round(wb/2),(0,0,255),4) # RED
+                #	brow_img(paper,'paper')
+            means = []
+    #ket_qua_thi='pppppp'
+    if len(questions_answer)>0:
+        diem = float("{:.2f}".format(10*so_cau_dung/len(questions_answer)))
+        #print(str(diem))
+        #ket_qua_thi = 'Diem : '+str(10*round(so_cau_dung/len(questions_answer),3))+' (Ti le cau dung: '+str(so_cau_dung)+'/'+str(len(questions_answer))+')'
+        #ket_qua_thi = 'Diem : '+str(diem)+' (Ti le cau dung: '+str(so_cau_dung)+'/'+str(len(questions_answer))+')'
+        lkqthi=[diem,so_cau_dung,len(questions_answer)]
+    else:
+        lkqthi=[0,0,0]    
+    #brow_img(paper,'paper')
+    return paper,lkqthi
+
 def cham_ptn_999_120(image,dic_dap_an):
     # Bo ria lay hcn lon nhat chua noi dung
     cnts = Find_cnts_voi_kieuN(image,kieuN=0)
@@ -213,7 +279,8 @@ def cham_ptn_999_120(image,dic_dap_an):
     # Xu li bubs tinh diem thi
     #dic_dap_an = Tao_dicdapan_random(120)
     ########################################
-    paper, lkqthi = Xu_li_bub_tinh_diem_thi(cnts_all_bubs_sx_inpaper, paper,dic_dap_an)
+    All_cnts_bub_in_paper = cnts_all_bubs_sx_inpaper[:4*len(dic_dap_an)]
+    paper, lkqthi = Xu_li_bub_tinh_diem_thi(All_cnts_bub_in_paper, paper,dic_dap_an)
     # 2- Ghi ket qua vao PTN va Save anh PTN
     #text1=ket_qua_thi
     #toado1 = (25,18)
@@ -240,14 +307,17 @@ def cham_ptn_999_120(image,dic_dap_an):
     return paper
 
 #############################
-#tep="PTN_HS/ptn-hs-001.JPG"
-#if not os.path.exists(tep):
-#    exit('Khong co tep : '+tep)
+tep="PTN_HS/ptn-hs-002.JPG"
+if not os.path.exists(tep):
+    exit('Khong co tep : '+tep)
 
-#image=cv2.imread(tep)
+image=cv2.imread(tep)
 
 #dic_dap_an = Tao_dicdapan_random(socau=120)
 #paper = cham_ptn_999_120(image,dic_dap_an)
-#brow_img(paper, 'XXXXXX')
-
+brow_img(image, 'XXXXXX')
+paper = cv2.rotate(image, cv2.ROTATE_90_CLOCKWISE)
+paper = cv2.rotate(paper, cv2.ROTATE_90_CLOCKWISE)
+brow_img(paper, 'XXXXXX')
+cv2.imwrite("ptn-moi.jpg",paper)
 
