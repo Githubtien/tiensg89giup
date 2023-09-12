@@ -15,8 +15,7 @@ from PIL import ImageOps
 import imutils
 from cham_ptn_001_40 import cham_ptn_001_40
 from cham_ptn_999_120 import cham_ptn_999_120
-from cham_ptn_006_40 import cham_ptn_006_40
-from cham_ptn_008_40 import cham_ptn_008_40
+from cham_ptn_002_50 import cham_ptn_002_50
 
 from funcs_cham_ptn import brow_img
 
@@ -191,11 +190,8 @@ if st.checkbox(':beginner:**:red[Bước 3 : Upload file image PTN trong máy l�
         elif mau_phieu_chon[4:-4]=='999_120':
             paper = cham_ptn_999_120(opencv_image,dic_dap_an)  #chay trong cv2 voi image cv2
             st.image(paper, channels="BGR", caption='Phiếu trắc nghiệm đã được chấm!')
-        elif mau_phieu_chon[4:-4]=='006_40':
-            paper = cham_ptn_006_40(opencv_image,dic_dap_an)  #chay trong cv2 voi image cv2
-            st.image(paper, channels="BGR", caption='Phiếu trắc nghiệm đã được chấm!')
-        elif mau_phieu_chon[4:-4]=='008_40':
-            paper = cham_ptn_008_40(opencv_image,dic_dap_an)  #chay trong cv2 voi image cv2
+        elif mau_phieu_chon[4:-4]=='002_50':
+            paper = cham_ptn_002_50(opencv_image,dic_dap_an)  #chay trong cv2 voi image cv2
             st.image(paper, channels="BGR", caption='Phiếu trắc nghiệm đã được chấm!')
     
     #if '000_120' in lthongtin:
