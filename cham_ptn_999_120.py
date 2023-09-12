@@ -307,17 +307,17 @@ def cham_ptn_999_120(image,dic_dap_an):
     return paper
 
 #############################
-tep="PTN_HS/ptn-hs-002.JPG"
-if not os.path.exists(tep):
-    exit('Khong co tep : '+tep)
+#tep="PTN_HS/ptn-hs-002.JPG"
+#if not os.path.exists(tep):
+#    exit('Khong co tep : '+tep)
 
-image=cv2.imread(tep)
+#image=cv2.imread(tep)
 
 #dic_dap_an = Tao_dicdapan_random(socau=120)
 #paper = cham_ptn_999_120(image,dic_dap_an)
-brow_img(image, 'XXXXXX')
-paper = cv2.rotate(image, cv2.ROTATE_90_CLOCKWISE)
-paper = cv2.rotate(paper, cv2.ROTATE_90_CLOCKWISE)
-brow_img(paper, 'XXXXXX')
-cv2.imwrite("ptn-moi.jpg",paper)
+#brow_img(image, 'XXXXXX')
+#paper = cv2.rotate(image, cv2.ROTATE_90_CLOCKWISE)
+#paper = cv2.rotate(paper, cv2.ROTATE_90_CLOCKWISE)
+#brow_img(paper, 'XXXXXX')
+#cv2.imwrite("ptn-moi.jpg",paper)
 
