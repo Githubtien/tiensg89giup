@@ -75,17 +75,17 @@ def Chon_mau_phieu():
     #st.write(":red["+ket_qua_thi+"]")
     #return
 
-def Cung_cap_da():
+def Cung_cap_da(socau_theo_maup):
     listd = os.listdir('./dap_an/')
     ltep=[]
     for tep in listd:
-        if '_da_' in tep:
+        if '_da_' in tep and int(tep[:-4][25:]) <= socau_theo_maup :
             ltep.append(tep[:-4])
     ltep.sort(reverse=True)
     option = st.selectbox(
         ':blue[Chọn một đáp án đã có trước đây?]',
         (ltep[i] for i in range(len(ltep))))
-
+    
     tepluuda = './dap_an/' + option + '.pkl'
     #st.write(tenfda_dang_dung)
 
@@ -167,10 +167,10 @@ cungcapdapan=-1
 canhbao=-1
 if st.checkbox(':banjo:**:red[Bước 2 : Cung cấp đáp án]**') and chonmauphieu == 1:
     cungcapdapan=1
-    dic_dap_an = Cung_cap_da()
-    if len(dic_dap_an) != int(str_socau):
-        canhbao=1
-        st.write(':warning:**:orange[Đáp án này có số câu không phù hợp mẫu phiếu chọn chấm! Hãy chọn đáp án khác.]**')    
+    dic_dap_an = Cung_cap_da(socau_theo_maup=int(str_socau))
+    #if len(dic_dap_an) > int(str_socau):
+    #    canhbao=1
+    #    st.write(':warning:**:orange[Đáp án này có số câu không phù hợp mẫu phiếu chọn chấm! Hãy chọn đáp án khác.]**')    
 
 uploadfile=-1
 if st.checkbox(':beginner:**:red[Bước 3 : Upload file image PTN trong máy lên, sau đó auto chấm rồi trả về kết quả.]**') and chonmauphieu == 1 and cungcapdapan==1 and canhbao != 1:
@@ -185,9 +185,9 @@ if st.checkbox(':beginner:**:red[Bước 3 : Upload file image PTN trong máy l�
         opencv_image = cv2.imdecode(file_bytes, 1)
 
         if mau_phieu_chon[4:-4]=='001_40':
-            paper = cham_ptn_001_40(opencv_image,dic_dap_an)  #chay trong cv2 voi image cv2
+            image = cv2.rotate(opencv_image, cv2.ROTATE_90_CLOCKWISE)#nua a4 nen xoay mobi de chup 90 xoay nguoc clock, vay phai xoay lai 90 clock
+            paper = cham_ptn_001_40(image,dic_dap_an)  #chay trong cv2 voi image cv2
             st.image(paper, channels="BGR", caption='Phiếu trắc nghiệm đã được chấm!')
-
         elif mau_phieu_chon[4:-4]=='999_120':
             paper = cham_ptn_999_120(opencv_image,dic_dap_an)  #chay trong cv2 voi image cv2
             st.image(paper, channels="BGR", caption='Phiếu trắc nghiệm đã được chấm!')
