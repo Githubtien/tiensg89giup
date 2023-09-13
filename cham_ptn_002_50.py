@@ -238,13 +238,18 @@ def Xu_li_bub_tinh_diem_thi(All_cnts_bub_in_paper, paper,dic_dap_an):
 def cham_ptn_002_50(image,dic_dap_an):
     paper = Find_4kv_va_scanhoa(image)
     paper = Xen_xquanh_anh(paper,beday=10)
-    #brow_img(paper,'xxxxxx')
+    #brow_img(paper,'da scanhoa va xen')
   
     cnts = Find_cnts_voi_kieuN(paper,kieuN=0)
     cnts = sorted(cnts, key=cv2.contourArea, reverse=True)
-    #cv2.drawContours(paper, cnts[:5], -1, (0, 0, 255), 5)
-    #brow_img(paper,'c')
-    xM,yM,wM,hM = cv2.boundingRect(cnts[0]) #cnt Max chua trac nghiem
+    cnt_db=cnts[0]
+    c1 = min(cnt_db, key=get_x_ver0)
+    c2 = max(cnt_db, key=get_y_ver1)
+    x1,y1 = c1[0][0], c1[0][1]
+    x2,y2 = c2[0][0], c2[0][1]
+    xM,yM,wM,hM = x1, y1, x2-x1, y2-y1
+    #anh=image[y1:y1+y2-y1,x1:x1+x2-x1]
+    #xM,yM,wM,hM = cv2.boundingRect(cnts[0]) #cnt Max chua trac nghiem
     anh=paper[yM:yM+hM,xM:xM+wM]
     anh=Xen_xquanh_anh(anh,beday=20)
     #brow_img(anh,'c0:9')
@@ -372,9 +377,11 @@ def cham_ptn_002_50(image,dic_dap_an):
             means = []
     #ket_qua_thi='pppppp'
     if len(questions_answer)>0:
-        diem = float("{:.2f}".format(10*so_cau_dung/len(questions_answer)))
+        #diem = float("{:.2f}".format(10*so_cau_dung/len(questions_answer)))
+        diem = round(10*so_cau_dung/len(questions_answer),1)
+        #print(diem)
         #print(str(diem))
-        ket_qua_thi = 'Diem : '+str(10*round(so_cau_dung/len(questions_answer),3))+' (Ti le cau dung: '+str(so_cau_dung)+'/'+str(len(questions_answer))+')'
+        ket_qua_thi = 'Diem : '+str(diem)+' (Ti le cau dung: '+str(so_cau_dung)+'/'+str(len(questions_answer))+')'
         #ket_qua_thi = 'Diem : '+str(diem)+' (Ti le cau dung: '+str(so_cau_dung)+'/'+str(len(questions_answer))+')'
         text1=ket_qua_thi
         #toado1 = (25,18)
@@ -398,7 +405,6 @@ def cham_ptn_002_50(image,dic_dap_an):
         #cv2.imwrite(str_sobd.replace('?','X')+'_'+str_somd.replace('?','X')+".jpg",paper)
 
     return paper
-
 ######################
 #tep='PTN_HS/ptn-vh-001.jpg'
 #if not os.path.exists(tep):
