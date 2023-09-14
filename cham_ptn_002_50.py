@@ -1,4 +1,10 @@
-
+#cach tim 4 khoi vuong den to nhat de scan hoa du anh chup cach nao, mien la co 4 kv den to nhat
+#B1: doi img ra anh xam roi sang anh nhi phan roi tim cac cnts cap TREE.
+#B2: Duyet cac cnts tim duoc loc ra cac cnts co 4 canh va ti so w:h co 0.8-1.2
+#B3: Sap xep cac cnts o B2 theo anh hcn bao quanh cnt voi np.mean cua no
+#B4: Lay khoang 20 cai roi sx theo dien tich giam
+#B5: Lay ra 4 cnts dau thi do la 4 KV den can tim, roi scan hoa
+#sau khi scan hoa, lam lai nhu tren vi bay gio toado no khac. Ta se lay tiep 8 kv ke tiep
 import numpy as np
 import cv2
 import os.path
@@ -76,34 +82,49 @@ def Scanhoa_from_4dinh_of4kv_mark(img,cnts_4KV_top, cnts_4KV_bot):
     paper = four_point_transform(img, pts)
     return paper
 
-def Find_4kv_va_scanhoa(image):
+def get_dosang_(s):
+    # s = [thresh,cnt]
+    xs,ys,ws,hs = cv2.boundingRect(s[0])
+    anh = s[1][ys:ys+hs, xs:xs+ws]
+    #gray = cv2.cvtColor(anh, cv2.COLOR_BGR2GRAY)
+    total = np.nonzero(anh)
+    return total
+
+def get_idx1(s):
+    #s=[cnt,dosang]
+    return s[1]
+
+def get_val(s):
+    # s=[cnt,val]
+    return s[1]
+
+def Find_20kv_den(image):
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY) 
     thresh = cv2.threshold(gray,0, 255,cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)[1]
     cnts = cv2.findContours(thresh, 1, cv2.CHAIN_APPROX_SIMPLE)	
     cnts = imutils.grab_contours(cnts)
     cnts = sorted(cnts, key=cv2.contourArea, reverse=True )
-
-    cnts_lay=[]
+    cnts_kv=[]
     for cnt in cnts:
-        x,y,w,h = cv2.boundingRect(cnt)    
+        x,y,w,h = cv2.boundingRect(cnt)
         approx = cv2.approxPolyDP(cnt, 0.03 * cv2.arcLength(cnt, True), True)
-        if len(approx) == 4 and (10 < w < 300) and (0.3 < float(w/h) < 1.7) :
-            #print(w)
-            cnts_lay.append(cnt)
-    if len(cnts_lay)<4:
-        exit('Khong co 4 KV')
-    cnts_lay = sorted(cnts_lay, key= get_x_ver0)
-    
-    #cv2.drawContours(image, cnts_lay[:2]+cnts_lay[-2:], -1, (0, 0, 255), 5)
-    #brow_img(image,'anh_phan_tn')
+        if len(approx) == 4 and (0.8 < float(w)/h < 1.2):
+            anhc=gray[y:y+h,x:x+w]
+            val=int(np.mean(anhc))
+            ttin=[cnt,val]
+            cnts_kv.append(ttin)
+    cnts_kv = sorted(cnts_kv, key = get_val)
+    cnt_20kvden=[]
+    for c in cnts_kv[:20]:
+        cnt_20kvden.append(c[0])
+    cnt_20kvden = sorted(cnt_20kvden,key=cv2.contourArea,reverse=True)
+    return cnt_20kvden
 
-    #for cnt in cnts_lay[:2]+cnts_lay[-2:]:
-    #    cv2.drawContours(image, [cnt], 0, (0, 0, 255), 5)
-    #    brow_img(image,'anh_phan_tn')
-    cnts_cac_kv=cnts_lay[:2]+cnts_lay[-2:]
-    cnts_cac_kv = sorted(cnts_cac_kv, key= get_y_ver1)
-    cnt_4c_TOP = cnts_cac_kv[:2]   # lay 2 cnt dau tien hy vng la 2 kv
-    cnt_4c_BOT = cnts_cac_kv[-2:] # lay 2 cnt cuoi cung  hy vng la 2 kv
+def Rut_ra_4kv_forscan(cnt_20kvden):
+    cnts_4kv=cnt_20kvden[:4]
+    cnts_4kv = sorted(cnts_4kv, key= get_y_ver1)
+    cnt_4c_TOP = cnts_4kv[:2]   # lay 2 cnt dau tien hy vng la 2 kv
+    cnt_4c_BOT = cnts_4kv[-2:] # lay 2 cnt cuoi cung  hy vng la 2 kv
     cnt_4c_TOP = sorted(cnt_4c_TOP, key= get_x_ver0)
     cnt_4c_BOT = sorted(cnt_4c_BOT, key= get_x_ver0)
     paper = Scanhoa_from_4dinh_of4kv_mark(image,cnt_4c_TOP, cnt_4c_BOT)
@@ -236,90 +257,145 @@ def Xu_li_bub_tinh_diem_thi(All_cnts_bub_in_paper, paper,dic_dap_an):
 
 
 def cham_ptn_002_50(image,dic_dap_an):
-    paper = Find_4kv_va_scanhoa(image)
-    paper = Xen_xquanh_anh(paper,beday=10)
+    cnt_20kvden = Find_20kv_den(image)
+    paper = Rut_ra_4kv_forscan(cnt_20kvden)
     #brow_img(paper,'da scanhoa va xen')
-  
-    cnts = Find_cnts_voi_kieuN(paper,kieuN=0)
-    cnts = sorted(cnts, key=cv2.contourArea, reverse=True)
-    cnt_db=cnts[0]
-    c1 = min(cnt_db, key=get_x_ver0)
-    c2 = max(cnt_db, key=get_y_ver1)
-    x1,y1 = c1[0][0], c1[0][1]
-    x2,y2 = c2[0][0], c2[0][1]
-    xM,yM,wM,hM = x1, y1, x2-x1, y2-y1
-    #anh=image[y1:y1+y2-y1,x1:x1+x2-x1]
-    #xM,yM,wM,hM = cv2.boundingRect(cnts[0]) #cnt Max chua trac nghiem
-    anh=paper[yM:yM+hM,xM:xM+wM]
-    anh=Xen_xquanh_anh(anh,beday=20)
-    #brow_img(anh,'c0:9')
+    cnt_20kvden = Find_20kv_den(paper)
+    cnt_8kvdenke=cnt_20kvden[4:12]
+    #sx lai
+    cnt_8kvdenke = sorted(cnt_8kvdenke,key=get_y_ver1)
+    cnt_8kv_2d=cnt_8kvdenke[:2]
+    cnt_8kv_2d = sorted(cnt_8kv_2d,key=get_x_ver0)
+    cnt_8kv_3g=cnt_8kvdenke[2:5]
+    cnt_8kv_3g = sorted(cnt_8kv_3g,key=get_x_ver0)
+    cnt_8kv_3c=cnt_8kvdenke[5:]
+    cnt_8kv_3c = sorted(cnt_8kv_3c,key=get_x_ver0)
+
+    #for c in cnt_8kv_2d+cnt_8kv_3g+cnt_8kv_3c:
+    #    cv2.drawContours(paper, [c], 0, (0, 0, 255), 5)
+    #    brow_img(paper,'c')
+    # lay ma de
+    x0,y0,w0,h0 = cv2.boundingRect(cnt_8kv_2d[0])
+    x3,y3,w3,h3 = cv2.boundingRect(cnt_8kv_3g[1])
+    anh=paper[y0+h0:y3-int(0.1*(y3-y0)),x0+w0:x3-int(0.4*(x3-x0))]
+    anh = Xen_xquanh_anh(anh,beday=4)
     cnts = Find_cnts_voi_kieuN(anh,kieuN=0)
     cnts = sorted(cnts, key=cv2.contourArea, reverse=True)
-    
     #cv2.drawContours(anh, cnts, -1, (0, 0, 255), 5)
     #brow_img(anh,'c')
-    cnts_lay=[]
-    for cnt in cnts:
-        x,y,w,h = cv2.boundingRect(cnt)    
-        approx = cv2.approxPolyDP(cnt, 0.03 * cv2.arcLength(cnt, True), True)
-        if len(approx) > 4 and (0.2 < float(w/h) < 1.8) and (50 < w < 100) and (50 < h < 100) and x>100  :
-            #print(w)
-            cnts_lay.append(cnt)
-    #print(len(cnts_lay))
-    if len(cnts_lay) < 290:
-        exit('PTN khong phu hop!')
-
-    cnts_lay = sorted(cnts_lay, key= get_y_ver1)
-    cnts_bubs_mdbd=cnts_lay[0:90]
-    cnts_bubs_mdbd=sorted(cnts_bubs_mdbd, key= get_x_ver0)
-
-    # ma de 30 bubs   
-    cnts_bubs_md=cnts_bubs_mdbd[:30]
+    cnts_bubs_md=cnts[:30]
+    cnts_bubs_md = sorted(cnts_bubs_md,key=get_x_ver0)
     cnts_bulay_sx=[]
     for j in range(3):
         cnts_cot=cnts_bubs_md[(j%3)*10:(j%3)*10+10]
         cnts_cot=sorted(cnts_cot, key= get_y_ver1)
         cnts_bulay_sx=cnts_bulay_sx+cnts_cot
+    #for c in cnts_bulay_sx:
+    #    cv2.drawContours(anh, [c], -1, (0, 0, 255), 5)
+    #    brow_img(anh,'c')
     str_somd = Lay_so_ma_de(anh ,cnts_bulay_sx)
-    #print(str_somd)
-
-    # bao danh 60 bubs
-    cnts_bubs_bd=cnts_bubs_mdbd[30:]
+    print(str_somd)
+    
+    # lay so bd
+    x1,y1,w1,h1 = cv2.boundingRect(cnt_8kv_2d[1])
+    x4,y4,w4,h4 = cv2.boundingRect(cnt_8kv_3g[2])
+    anh=paper[y1+h1:y4-int(0.1*(y4-y1)),x1+w1:x4]
+    anh = Xen_xquanh_anh(anh,beday=4)
+    cnts = Find_cnts_voi_kieuN(anh,kieuN=0)
+    cnts = sorted(cnts, key=cv2.contourArea, reverse=True)
+    #cv2.drawContours(anh, cnts, -1, (0, 0, 255), 5)
+    #brow_img(anh,'c')
+    cnts_bubs_bd=cnts[:60]
+    cnts_bubs_bd =sorted(cnts_bubs_bd,key=get_x_ver0) 
     cnts_bulay_sx=[]
     for j in range(6):
         cnts_cot=cnts_bubs_bd[(j%6)*10:(j%6)*10+10]
         cnts_cot=sorted(cnts_cot, key= get_y_ver1)
         cnts_bulay_sx=cnts_bulay_sx+cnts_cot
+    #for c in cnts_bulay_sx:
+    #    cv2.drawContours(anh, [c], -1, (0, 0, 255), 5)
+    #    brow_img(anh,'c')
     str_sobd = Lay_so_bao_danh(anh ,cnts_bulay_sx)
-    #print(str_sobd)
-    
+    print(str_sobd)
     # trac nghiem 200 bubs 50 cau
-    cnts_bubs_tn=cnts_lay[90:]
-    cnts_bubs_tn=sorted(cnts_bubs_tn, key= get_x_ver0)
+
+    # lay khoi trac nghiem 2-6
+    cnts_all_sx_tdcu=[]
+    x2,y2,w2,h2 = cv2.boundingRect(cnt_8kv_3g[0])
+    x6,y6,w6,h6 = cv2.boundingRect(cnt_8kv_3c[1])
+    anh=paper[y2+h2:y6,x2+w2:x6]
+    #anh = Xen_xquanh_anh(anh,beday=4)
+    cnts = Find_cnts_voi_kieuN(anh,kieuN=0)
+    cnts = sorted(cnts, key=cv2.contourArea, reverse=True)
+    #cv2.drawContours(anh, cnts, -1, (0, 0, 255), 5)
+    #brow_img(anh,'c')
+    cnts_bubs_bd=cnts[:17*4]
+    cnts_bubs_bd =sorted(cnts_bubs_bd,key=get_y_ver1) 
     cnts_bulay_sx=[]
-    for j in range(3):
-        if j != 2:
-            cnts_khoi=cnts_bubs_tn[(j%3)*68:(j%3)*68+68]
-        else:
-            cnts_khoi=cnts_bubs_tn[(j%3)*68:]    
-        cnts_khoi=sorted(cnts_khoi, key= get_y_ver1)
-        socau_inkhoi=int(len(cnts_khoi)/4)
-        #print(socau_inkhoi)
-        for i in range(socau_inkhoi):
-            cnts_dong=cnts_khoi[(i%17)*4:(i%17)*4+4]
-            cnts_dong=sorted(cnts_dong, key= get_x_ver0)
-            cnts_bulay_sx=cnts_bulay_sx+cnts_dong
-    #test va tra ve toa do cu in paper
     cnts_bulay_sx_tdcu=[]
+    for j in range(17):
+        cnts_cot=cnts_bubs_bd[(j%17)*4:(j%17)*4+4]
+        cnts_cot=sorted(cnts_cot, key= get_x_ver0)
+        cnts_bulay_sx=cnts_bulay_sx+cnts_cot
     for c in cnts_bulay_sx:
-        cnts_bulay_sx_tdcu.append(c+np.array([xM+20,yM+20]))
+        cnts_bulay_sx_tdcu.append(c+np.array([x2+w2,y2+h2]))
+    cnts_all_sx_tdcu=cnts_all_sx_tdcu+cnts_bulay_sx_tdcu
 
     #cv2.drawContours(paper, cnts_bulay_sx_tdcu, -1, (0, 0, 255), 5)
-    #brow_img(paper,'tn')
+    #brow_img(paper,'c')
 
+    # lay khoi trac nghiem 3-7
+    x3,y3,w3,h3 = cv2.boundingRect(cnt_8kv_3g[1])
+    x7,y7,w7,h7 = cv2.boundingRect(cnt_8kv_3c[2])
+    anh=paper[y3+h3:y7,x3+w3:x7]
+    #anh = Xen_xquanh_anh(anh,beday=4)
+    cnts = Find_cnts_voi_kieuN(anh,kieuN=0)
+    cnts = sorted(cnts, key=cv2.contourArea, reverse=True)
+    #cv2.drawContours(anh, cnts, -1, (0, 0, 255), 5)
+    #brow_img(anh,'c')
+    cnts_bubs_bd=cnts[:17*4]
+    cnts_bubs_bd =sorted(cnts_bubs_bd,key=get_y_ver1) 
+    cnts_bulay_sx=[]
+    cnts_bulay_sx_tdcu=[]
+    for j in range(17):
+        cnts_cot=cnts_bubs_bd[(j%17)*4:(j%17)*4+4]
+        cnts_cot=sorted(cnts_cot, key= get_x_ver0)
+        cnts_bulay_sx=cnts_bulay_sx+cnts_cot
+    for c in cnts_bulay_sx:
+        cnts_bulay_sx_tdcu.append(c+np.array([x3+w3,y3+h3]))
+    cnts_all_sx_tdcu=cnts_all_sx_tdcu+cnts_bulay_sx_tdcu
+    #cv2.drawContours(paper, cnts_bulay_sx_tdcu, -1, (0, 0, 255), 5)
+    #brow_img(paper,'c')
+
+    # lay khoi trac nghiem 4-8
+    x4,y4,w4,h4 = cv2.boundingRect(cnt_8kv_3g[2])
+    x8,y8,w8,h8 = x7+int(0.7*(x7-x6)),y7,w7,h7
+    anh=paper[y4+h4:y8,x4+w4:x8]
+    #anh = Xen_xquanh_anh(anh,beday=4)
+    cnts = Find_cnts_voi_kieuN(anh,kieuN=0)
+    cnts = sorted(cnts, key=cv2.contourArea, reverse=True)
+    #cv2.drawContours(anh, cnts, -1, (0, 0, 255), 5)
+    #brow_img(anh,'c')
+    cnts_bubs_bd=cnts[:16*4]
+    cnts_bubs_bd =sorted(cnts_bubs_bd,key=get_y_ver1) 
+    cnts_bulay_sx=[]
+    cnts_bulay_sx_tdcu=[]
+    for j in range(16):
+        cnts_cot=cnts_bubs_bd[(j%16)*4:(j%16)*4+4]
+        cnts_cot=sorted(cnts_cot, key= get_x_ver0)
+        cnts_bulay_sx=cnts_bulay_sx+cnts_cot
+    for c in cnts_bulay_sx:
+        cnts_bulay_sx_tdcu.append(c+np.array([x4+w4,y4+h4]))
+    cnts_all_sx_tdcu=cnts_all_sx_tdcu+cnts_bulay_sx_tdcu
+    #cv2.drawContours(paper, cnts_bulay_sx_tdcu, -1, (0, 0, 255), 5)
+    #brow_img(paper,'c')
+    #for c in cnts_all_sx_tdcu:
+    #    cv2.drawContours(paper, [c], 0, (0, 0, 255), 5)
+    #    brow_img(paper,'c')
+    print(len(cnts_all_sx_tdcu))    
     #dic_dap_an = Tao_dicdapan_random(40)
     ########################################
-    All_cnts_bub_in_paper=cnts_bulay_sx_tdcu[:4*len(dic_dap_an)]
+    All_cnts_bub_in_paper=cnts_all_sx_tdcu[:4*len(dic_dap_an)]
     Xu_li_bub_tinh_diem_thi(All_cnts_bub_in_paper, paper,dic_dap_an)
 
     answer_choices = ['A', 'B', 'C', 'D', '?'] 
@@ -394,8 +470,8 @@ def cham_ptn_002_50(image,dic_dap_an):
         cv2.putText(paper, 'Ma de: ', (20,400), 0, fontScale, color2, thickness, cv2.LINE_AA)
         cv2.putText(paper, str_somd, (20,500), 0, fontScale, color2, thickness, cv2.LINE_AA)
 
-        cv2.putText(paper, 'So bd: ', (682,400), 0, fontScale, color2, thickness, cv2.LINE_AA)
-        cv2.putText(paper, str_sobd, (682,500), 0, fontScale, color2, thickness, cv2.LINE_AA)
+        cv2.putText(paper, 'So bd: ', (690,400), 0, fontScale, color2, thickness, cv2.LINE_AA)
+        cv2.putText(paper, str_sobd, (690,500), 0, fontScale, color2, thickness, cv2.LINE_AA)
 
         cv2.putText(paper, 'Diem : '+str(10*round(so_cau_dung/len(questions_answer),3)), (20,1400), 0, fontScale, color1, thickness, cv2.LINE_AA)
         cv2.putText(paper, ' (Ti le cau dung: '+str(so_cau_dung)+'/'+str(len(questions_answer)), (680,1400), 0, fontScale, color1, thickness, cv2.LINE_AA)
@@ -405,6 +481,7 @@ def cham_ptn_002_50(image,dic_dap_an):
         #cv2.imwrite(str_sobd.replace('?','X')+'_'+str_somd.replace('?','X')+".jpg",paper)
 
     return paper
+
 ######################
 #tep='PTN_HS/ptn-vh-001.jpg'
 #if not os.path.exists(tep):
