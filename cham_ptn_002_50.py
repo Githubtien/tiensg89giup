@@ -120,7 +120,7 @@ def Find_20kv_den(image):
     cnt_20kvden = sorted(cnt_20kvden,key=cv2.contourArea,reverse=True)
     return cnt_20kvden
 
-def Rut_ra_4kv_forscan(cnt_20kvden):
+def Rut_ra_4kv_forscan(cnt_20kvden,image):
     cnts_4kv=cnt_20kvden[:4]
     cnts_4kv = sorted(cnts_4kv, key= get_y_ver1)
     cnt_4c_TOP = cnts_4kv[:2]   # lay 2 cnt dau tien hy vng la 2 kv
@@ -258,7 +258,7 @@ def Xu_li_bub_tinh_diem_thi(All_cnts_bub_in_paper, paper,dic_dap_an):
 
 def cham_ptn_002_50(image,dic_dap_an):
     cnt_20kvden = Find_20kv_den(image)
-    paper = Rut_ra_4kv_forscan(cnt_20kvden)
+    paper = Rut_ra_4kv_forscan(cnt_20kvden,image)
     #brow_img(paper,'da scanhoa va xen')
     cnt_20kvden = Find_20kv_den(paper)
     cnt_8kvdenke=cnt_20kvden[4:12]
